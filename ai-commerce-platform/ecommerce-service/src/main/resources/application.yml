@@ -1,0 +1,46 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: sparta-ecommerce
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/sparta_ecommerce
+    username: root
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 10
+          min-idle: 2
+
+
+points:
+  default-rate: 0.01
+  vip-rate: 0.03
+  category-rate-map:
+    electronics: "0.05"
+    clothing: "0.03"
+    food: "0.02"
+    book: "0.10"
+  min-usage-amount: 10000
+  min-usage-point: 1000
+  expire-days: 30
+  max-balance: 1000000
+
+cart:
+  max-items: 20
+  storage:
+    type: caffeine  # caffeine (로컬 캐시) 또는 redis (분산 캐시)
+

@@ -1,0 +1,4 @@
+rootProject.name = 'ai-commerce-platform'
+
+include("chat-service")
+include("ecommerce-service")
