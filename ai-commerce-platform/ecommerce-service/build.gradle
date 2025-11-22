@@ -1,3 +1,35 @@
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    // Persistence
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // QueryDSL JPA 라이브러리
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    // QueryDSL 어노테이션 프로세서 (Q클래스 생성)
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+
+    // Redis & Redisson for distributed lock
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.27.0'
+
+    // Cache - Caffeine
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+}
+
+tasks.named('compileJava') {
+    options.annotationProcessorPath = configurations.annotationProcessor
+}
+
 tasks.named('bootJar') {
     enabled = true
 }

@@ -38,5 +38,5 @@ out/
 
 CLAUDE.md
 
-src/main/resources/static
+**/src/main/resources/static/**
 
