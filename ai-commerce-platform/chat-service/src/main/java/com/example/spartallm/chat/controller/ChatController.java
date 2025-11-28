@@ -16,13 +16,13 @@ import reactor.core.publisher.Flux;
 
 @Slf4j
 @RestController
-@RequestMapping("/v1/chat")
+@RequestMapping("/v1")
 @RequiredArgsConstructor
 public class ChatController {
 
     private final ChatService chatService;
 
-    @PostMapping("/completions")
+    @PostMapping("/chat/completions")
     public ResponseEntity<?> chat(@RequestBody @Valid ChatRequest chatRequest) {
         ChatQuery chatQuery = chatRequest.toChatQuery();
 
@@ -42,7 +42,7 @@ public class ChatController {
         }
     }
 
-    @GetMapping("/completions")
+    @GetMapping("/models")
     public ResponseEntity<LlmModelListResponse> llmList() {
         LlmModelListResult llmModeListResult =  chatService.getLlmList();
         return ResponseEntity.ok(LlmModelListResponse.of(llmModeListResult));
