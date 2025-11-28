@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 
 @Slf4j
@@ -61,10 +62,13 @@ public class DefaultLlmResponseMapper implements LlmResponseMapper {
     ) {
         log.debug("Mapping stream response for model: {}", requestMessage.modelName());
 
-        // ChatClient 스트리밍 호출
-        // options는 Provider별 ChatOptions (OllamaChatOptions, AnthropicChatOptions 등)
-        Flux<String> tokenFlux = chatClient
-            .prompt(requestMessage.systemPrompt())
+        ChatClient.ChatClientRequestSpec promptSpec = chatClient.prompt();
+
+        if (StringUtils.hasText(requestMessage.systemPrompt())) {
+            promptSpec = promptSpec.system(requestMessage.systemPrompt());
+        }
+
+        Flux<String> tokenFlux = promptSpec
             .user(requestMessage.userMessage())
             .options((org.springframework.ai.chat.prompt.ChatOptions) options)
             .stream()
