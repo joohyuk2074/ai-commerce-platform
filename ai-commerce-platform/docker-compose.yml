@@ -11,6 +11,15 @@ services:
     restart: unless-stopped
     networks:
       - chatbot-network
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        ollama serve &
+        sleep 5
+        ollama pull qwen2.5:0.5b
+        ollama pull qwen2.5:3b
+        ollama pull qwen2.5:7b
+        wait
 
   postgres:
     image: pgvector/pgvector:pg16
