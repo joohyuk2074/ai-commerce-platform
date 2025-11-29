@@ -37,6 +37,6 @@ out/
 .vscode/
 
 CLAUDE.md
-
 **/src/main/resources/static/**
+.env
 
