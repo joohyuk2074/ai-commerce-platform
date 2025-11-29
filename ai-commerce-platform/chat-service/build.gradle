@@ -2,6 +2,12 @@ dependencies {
     implementation platform("org.springframework.ai:spring-ai-bom:1.1.0-M2")
     implementation 'org.springframework.ai:spring-ai-starter-model-anthropic'
     implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
+
+    implementation 'org.springframework.ai:spring-ai-pgvector-store'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'org.flywaydb:flyway-database-postgresql'
 }
 
 tasks.named('bootJar') {

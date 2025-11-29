@@ -32,6 +32,8 @@ subprojects {
         implementation 'org.springframework.boot:spring-boot-starter-web'
         implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+        implementation 'org.flywaydb:flyway-core'
+
         implementation "io.netty:netty-resolver-dns-native-macos:4.1.128.Final:osx-aarch_64"
 
         compileOnly 'org.projectlombok:lombok'

@@ -28,12 +28,13 @@ services:
       POSTGRES_DB: teamsparta_vector
       POSTGRES_USER: rtan
       POSTGRES_PASSWORD: sparta
-      # 추가 설정
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./chat-service/src/main/resources/db/init/01_create_vector_extension.sql:/docker-entrypoint-initdb.d/01_create_vector_extension.sql
+      - ./chat-service/src/main/resources/db/migration/V1__init.sql:/docker-entrypoint-initdb.d/V1__init.sql
     command: postgres -c shared_preload_libraries=vector
     networks:
       - chatbot-network
@@ -48,6 +49,9 @@ services:
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - SPRING_AI_OLLAMA_BASE_URL=http://ollama:11434
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/teamsparta_vector
+      - SPRING_DATASOURCE_USERNAME=rtan
+      - SPRING_DATASOURCE_PASSWORD=sparta
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
       - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=always
     depends_on:
