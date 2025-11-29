@@ -1,46 +1,34 @@
 package com.example.spartallm.knowledge.application.dto.result;
 
-import com.example.spartallm.knowledge.domain.model.AccessControl;
-import com.example.spartallm.knowledge.domain.model.FileMetadata;
-import com.example.spartallm.knowledge.domain.vo.FileData;
-import com.example.spartallm.knowledge.domain.vo.DocumentMeta;
+import com.example.spartallm.knowledge.domain.model.KnowledgeDocument;
+import com.example.spartallm.knowledge.domain.vo.DocumentStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UploadDocumentResult {
 
-    private String id;
-    private String userId;
-    private String hash;
+    private Long documentId;
+    private Long knowledgeId;
     private String filename;
-    private FileData data;
-    private DocumentMeta meta;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private Boolean status;
-    private String path;
-    private AccessControl accessControl;
+    private Long size;
+    private String contentType;
+    private DocumentStatus status;
+    private int totalChunks;
 
-    public static UploadDocumentResult from(FileMetadata fileMetadata) {
+    public static UploadDocumentResult from(KnowledgeDocument document) {
         return UploadDocumentResult.builder()
-            .id(fileMetadata.getId())
-            .userId(fileMetadata.getUserId())
-            .hash(fileMetadata.getHash())
-            .filename(fileMetadata.getFilename())
-            .data(fileMetadata.getData())
-            .meta(fileMetadata.getMeta())
-            .createdAt(fileMetadata.getCreatedAt())
-            .updatedAt(fileMetadata.getUpdatedAt())
-            .status(fileMetadata.getStatus())
-            .path(fileMetadata.getPath())
-            .accessControl(fileMetadata.getAccessControl())
+            .documentId(document.getId())
+            .knowledgeId(document.getKnowledgeId())
+            .filename(document.getFilename())
+            .size(document.getSize())
+            .contentType(document.getContentType())
+            .status(document.getStatus())
+            .totalChunks(document.getTotalChunks())
             .build();
     }
 }

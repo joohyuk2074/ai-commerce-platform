@@ -19,6 +19,7 @@ services:
         ollama pull qwen2.5:0.5b
         ollama pull qwen2.5:3b
         ollama pull qwen2.5:7b
+        ollama pull nomic-embed-text
         wait
 
   postgres:

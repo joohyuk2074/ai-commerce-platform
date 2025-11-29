@@ -19,7 +19,7 @@ public class EmbeddingConfig {
         return OllamaEmbeddingModel.builder()
             .ollamaApi(ollamaApi)
             .defaultOptions(OllamaEmbeddingOptions.builder()
-                .model("qwen2.5:3b")
+                .model("nomic-embed-text")
                 .build())
             .build();
     }

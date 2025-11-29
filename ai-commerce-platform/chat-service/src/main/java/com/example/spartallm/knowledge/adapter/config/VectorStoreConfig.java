@@ -24,9 +24,9 @@ public class VectorStoreConfig {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
         // PgVectorStore 생성
-        // mxbai-embed-large 모델의 임베딩 차원: 1024
+        // nomic-embed-text 모델의 임베딩 차원: 768
         return PgVectorStore.builder(jdbcTemplate, embeddingModel)
-            .dimensions(1024)
+            .dimensions(768)
             .distanceType(PgVectorStore.PgDistanceType.COSINE_DISTANCE)
             .indexType(PgVectorStore.PgIndexType.HNSW)
             .initializeSchema(false)

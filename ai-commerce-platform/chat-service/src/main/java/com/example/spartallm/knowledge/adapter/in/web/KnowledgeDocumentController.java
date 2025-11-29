@@ -1,8 +1,8 @@
 package com.example.spartallm.knowledge.adapter.in.web;
 
+import com.example.spartallm.knowledge.adapter.in.web.dto.response.UploadKnowledgeDocumentResponse;
 import com.example.spartallm.knowledge.application.dto.command.UploadDocumentCommand;
 import com.example.spartallm.knowledge.application.dto.result.UploadDocumentResult;
-import com.example.spartallm.knowledge.adapter.in.web.dto.response.FileUploadResponse;
 import com.example.spartallm.knowledge.domain.port.in.UploadDocumentUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,12 +16,12 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-public class DocumentController {
+public class KnowledgeDocumentController {
 
     private final UploadDocumentUseCase uploadDocumentUseCase;
 
     @PostMapping("/knowledge/{knowledgeId}/documents/upload")
-    public ResponseEntity<FileUploadResponse> uploadFile(
+    public ResponseEntity<UploadKnowledgeDocumentResponse> uploadFile(
         @PathVariable
         Long knowledgeId,
 
@@ -31,7 +31,7 @@ public class DocumentController {
             defaultValue = "663cfa58-b1b7-490c-b11a-5a6247491039"
         ) Long userId,
 
-        @RequestParam("file")
+        @RequestPart("file")
         MultipartFile file
     ) throws IOException {
         log.info("File upload request received. filename: {}, size: {}, userId: {}",
@@ -48,9 +48,10 @@ public class DocumentController {
 
         UploadDocumentResult result = uploadDocumentUseCase.execute(command);
 
-        FileUploadResponse response = FileUploadResponse.from(result);
+        UploadKnowledgeDocumentResponse response = UploadKnowledgeDocumentResponse.from(result);
 
-        log.info("File uploaded successfully. fileId: {}, path: {}", response.getId(), response.getPath());
+        log.info("File uploaded successfully. documentId: {}, chunks: {}",
+            response.getDocumentId(), response.getTotalChunks());
 
         return ResponseEntity.ok(response);
     }
