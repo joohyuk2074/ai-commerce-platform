@@ -37,6 +37,15 @@ public class KnowledgeController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<KnowledgeResponse> getKnowledge(@PathVariable Long id) {
+        log.info("Fetching knowledge - id: {}", id);
+
+        KnowledgeResponse knowledge = knowledgeService.getKnowledge(id);
+
+        return ResponseEntity.ok(knowledge);
+    }
+
     @GetMapping("/list")
     public ResponseEntity<List<KnowledgeResponse>> getKnowledgeList() {
         log.info("Fetching knowledge list");

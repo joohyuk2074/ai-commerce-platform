@@ -40,6 +40,17 @@ public class KnowledgeService {
     }
 
     @Transactional(readOnly = true)
+    public KnowledgeResponse getKnowledge(Long id) {
+        log.info("Fetching knowledge - id: {}", id);
+
+        Knowledge knowledge = knowledgeQueryPort.getById(id);
+
+        log.info("Knowledge found - id: {}, name: {}", knowledge.getId(), knowledge.getName());
+
+        return KnowledgeResponse.from(knowledge);
+    }
+
+    @Transactional(readOnly = true)
     public List<KnowledgeResponse> getKnowledgeList(Long userId) {
         log.info("Fetching knowledge list from external API");
 

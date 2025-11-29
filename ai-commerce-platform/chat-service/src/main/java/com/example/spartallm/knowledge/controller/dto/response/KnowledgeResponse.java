@@ -30,8 +30,6 @@ public record KnowledgeResponse(
     @JsonProperty("updated_at")
     Long updatedAt,
 
-    UserResponse user,
-
     List<FileResponse> files
 ) {
 
@@ -50,7 +48,6 @@ public record KnowledgeResponse(
             knowledge.getUpdatedAt() != null
                 ? knowledge.getUpdatedAt().atZone(systemDefault()).toEpochSecond()
                 : null,
-            null,
             List.of()
         );
     }
