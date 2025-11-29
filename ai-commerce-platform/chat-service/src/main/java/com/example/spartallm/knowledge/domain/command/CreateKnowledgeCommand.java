@@ -1,6 +1,6 @@
 package com.example.spartallm.knowledge.domain.command;
 
-import com.example.spartallm.knowledge.domain.entity.AccessControl;
+import com.example.spartallm.knowledge.domain.model.AccessControl;
 
 public record CreateKnowledgeCommand(
     Long userId,

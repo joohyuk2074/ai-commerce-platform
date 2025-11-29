@@ -1,8 +1,8 @@
 package com.example.spartallm.knowledge.domain.port;
 
-import com.example.spartallm.knowledge.domain.entity.Knowledge;
+import com.example.spartallm.knowledge.domain.model.Knowledge;
+import com.example.spartallm.knowledge.domain.port.out.KnowledgeCommandPort;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;

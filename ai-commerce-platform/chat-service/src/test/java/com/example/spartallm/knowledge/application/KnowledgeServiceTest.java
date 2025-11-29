@@ -1,10 +1,12 @@
 package com.example.spartallm.knowledge.application;
 
 import com.example.spartallm.knowledge.application.dto.result.CreateKnowledgeResult;
+import com.example.spartallm.knowledge.application.service.CreateKnowledgeService;
 import com.example.spartallm.knowledge.domain.command.CreateKnowledgeCommand;
-import com.example.spartallm.knowledge.domain.entity.AccessControl;
-import com.example.spartallm.knowledge.domain.entity.Knowledge;
+import com.example.spartallm.knowledge.domain.model.AccessControl;
+import com.example.spartallm.knowledge.domain.model.Knowledge;
 import com.example.spartallm.knowledge.domain.port.FakeKnowledgeCommandPort;
+import com.example.spartallm.knowledge.domain.port.in.CreateKnowledgeUseCase;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -15,17 +17,17 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("KnowledgeService 테스트")
+@DisplayName("CreateKnowledgeService 테스트")
 class KnowledgeServiceTest {
 
-    private KnowledgeService knowledgeService;
+    private CreateKnowledgeUseCase createKnowledgeUseCase;
     private FakeKnowledgeCommandPort fakeKnowledgeCommandPort;
 
     @BeforeEach
     void setUp() {
         // given: 테스트 환경 구성
         fakeKnowledgeCommandPort = new FakeKnowledgeCommandPort();
-        knowledgeService = new KnowledgeService(fakeKnowledgeCommandPort);
+        createKnowledgeUseCase = new CreateKnowledgeService(fakeKnowledgeCommandPort);
     }
 
     @AfterEach
@@ -54,7 +56,7 @@ class KnowledgeServiceTest {
             );
 
             // when: Knowledge를 생성하면
-            CreateKnowledgeResult result = knowledgeService.createKnowledge(command);
+            CreateKnowledgeResult result = createKnowledgeUseCase.execute(command);
 
             // then: 생성된 Knowledge가 반환되고
             assertThat(result).isNotNull();
@@ -92,7 +94,7 @@ class KnowledgeServiceTest {
             );
 
             // when: Knowledge를 생성하면
-            CreateKnowledgeResult result = knowledgeService.createKnowledge(command);
+            CreateKnowledgeResult result = createKnowledgeUseCase.execute(command);
 
             // then: 생성된 Knowledge가 올바르게 반환된다
             assertThat(result).isNotNull();
@@ -189,9 +191,9 @@ class KnowledgeServiceTest {
             );
 
             // when: 3개의 Knowledge를 순차적으로 생성하면
-            CreateKnowledgeResult result1 = knowledgeService.createKnowledge(command1);
-            CreateKnowledgeResult result2 = knowledgeService.createKnowledge(command2);
-            CreateKnowledgeResult result3 = knowledgeService.createKnowledge(command3);
+            CreateKnowledgeResult result1 = createKnowledgeUseCase.execute(command1);
+            CreateKnowledgeResult result2 = createKnowledgeUseCase.execute(command2);
+            CreateKnowledgeResult result3 = createKnowledgeUseCase.execute(command3);
 
             // then: 모든 Knowledge가 정상적으로 생성되고
             assertThat(result1.id()).isNotNull();
@@ -227,7 +229,7 @@ class KnowledgeServiceTest {
             );
 
             // when: Knowledge를 생성하면
-            CreateKnowledgeResult result = knowledgeService.createKnowledge(command);
+            CreateKnowledgeResult result = createKnowledgeUseCase.execute(command);
 
             // then: 생성된 Knowledge는 올바른 도메인 속성을 가진다
             Knowledge savedKnowledge = fakeKnowledgeCommandPort.findById(result.id());
@@ -261,8 +263,8 @@ class KnowledgeServiceTest {
             );
 
             // when: 같은 사용자가 2개의 Knowledge를 생성하면
-            CreateKnowledgeResult result1 = knowledgeService.createKnowledge(command1);
-            CreateKnowledgeResult result2 = knowledgeService.createKnowledge(command2);
+            CreateKnowledgeResult result1 = createKnowledgeUseCase.execute(command1);
+            CreateKnowledgeResult result2 = createKnowledgeUseCase.execute(command2);
 
             // then: 두 Knowledge 모두 정상적으로 생성되고
             assertThat(result1.userId()).isEqualTo(userId);
