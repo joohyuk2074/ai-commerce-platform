@@ -29,7 +29,7 @@ public class UserService {
             throw new BusinessException(ErrorCode.ENTITY_ALREADY_EXISTS, "Email: " + createCommand.email());
         }
 
-        User user = User.createNew(
+        User user = User.createNewForAuth(
             createCommand.email(),
             createCommand.name(),
             createCommand.phoneNumber()

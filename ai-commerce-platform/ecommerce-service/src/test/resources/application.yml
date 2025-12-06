@@ -30,10 +30,10 @@ points:
   default-rate: "0.01"
   vip-rate: "0.03"
   category-rate-map:
-    전자제품: "0.05"
-    의류: "0.03"
-    식품: "0.02"
-    도서: "0.10"
+    electronics: "0.05"
+    clothing: "0.03"
+    food: "0.02"
+    book: "0.10"
   min-usage-amount: 10000
   min-usage-point: 1000
   expire-days: 30
@@ -41,4 +41,6 @@ points:
 
 cart:
   max-items: 20
+  storage:
+    type: caffeine
 

@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -19,15 +20,15 @@ public class CommonResponse<T> {
 
 
     public static CommonResponse<IdResponse> create(Long id) {
-        return new CommonResponse<>(null, "Created successfully", new IdResponse(id));
+        return new CommonResponse<>(HttpStatus.CREATED.name(), "Created successfully", new IdResponse(id));
     }
 
     public static <T> CommonResponse<T> success(T data) {
-        return new CommonResponse<>(null, "Success", data);
+        return new CommonResponse<>(HttpStatus.OK.name(), "Success", data);
     }
 
     public static <T> CommonResponse<T> success(String message, T data) {
-        return new CommonResponse<>(null, message, data);
+        return new CommonResponse<>(HttpStatus.OK.name(), message, data);
     }
 
     public static <T> CommonResponse<T> error(String errorCode, String message) {

@@ -4,6 +4,7 @@ import com.example.spartallm.chat.application.dto.query.ChatQuery;
 import com.example.spartallm.chat.application.dto.result.ChatResult;
 import com.example.spartallm.chat.application.dto.result.LlmModelListResult;
 import com.example.spartallm.chat.domain.port.FakeChatAdapter;
+import com.example.spartallm.knowledge.domain.port.out.FakeVectorStorePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ class ChatServiceTest {
         FakeChatAdapter fakeChatAdapter = new FakeChatAdapter();
         fakeChatAdapter.init();
 
-        chatService = new ChatService(List.of(fakeChatAdapter));
+        chatService = new ChatService(List.of(fakeChatAdapter), new FakeVectorStorePort());
     }
 
     @Test

@@ -1,13 +1,14 @@
 package com.spartaecommerce.cart.presentation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spartaecommerce.cart.presentation.controller.dto.request.CartAddItemRequest;
+import com.spartaecommerce.cart.adapter.in.web.dto.request.CartAddItemRequest;
 import com.spartaecommerce.category.infrastructure.persistence.jpa.entity.CategoryJpaEntity;
 import com.spartaecommerce.category.infrastructure.persistence.jpa.repository.CategoryJpaRepository;
 import com.spartaecommerce.product.infrastructure.persistence.jpa.entity.ProductJpaEntity;
 import com.spartaecommerce.product.infrastructure.persistence.jpa.repository.ProductJpaRepository;
-import com.spartaecommerce.user.infrastructure.persistence.jpa.entity.UserJpaEntity;
-import com.spartaecommerce.user.infrastructure.persistence.jpa.repository.UserJpaRepository;
+import com.spartaecommerce.user.adapter.out.persistence.jpa.entity.UserJpaEntity;
+import com.spartaecommerce.user.adapter.out.persistence.jpa.repository.UserJpaRepository;
+import com.spartaecommerce.user.adapter.out.security.CustomUserDetails;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -51,6 +52,8 @@ class CartControllerTest {
     void addItem_ExceedMaxItems_Returns400() throws Exception {
         // given: 사용자 생성
         com.spartaecommerce.user.domain.entity.User user = com.spartaecommerce.user.domain.entity.User.createNew(
+            "testuser",
+            "password",
             "test@example.com",
             "Test User",
             "010-1234-5678"
@@ -69,6 +72,9 @@ class CartControllerTest {
         categoryEntity = categoryJpaRepository.save(categoryEntity);
         Long categoryId = categoryEntity.getCategoryId();
 
+        // given: 인증된 사용자 생성
+        CustomUserDetails userDetails = new CustomUserDetails(userId, "testuser", "password");
+
         // given: 20개의 상품을 장바구니에 추가
         for (int i = 1; i <= 20; i++) {
             com.spartaecommerce.product.domain.entity.Product product = com.spartaecommerce.product.domain.entity.Product.createNew(
@@ -83,7 +89,8 @@ class CartControllerTest {
 
             CartAddItemRequest request = new CartAddItemRequest(productEntity.getProductId(), 1);
 
-            mockMvc.perform(post("/api/v1/carts/" + userId + "/items")
+            mockMvc.perform(post("/api/v1/cart-items")
+                    .with(user(userDetails))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -103,7 +110,8 @@ class CartControllerTest {
         CartAddItemRequest request = new CartAddItemRequest(extraProductEntity.getProductId(), 1);
 
         // when & then: 21번째 상품 추가 시도 시 400 응답
-        mockMvc.perform(post("/api/v1/carts/" + userId + "/items")
+        mockMvc.perform(post("/api/v1/cart-items")
+                .with(user(userDetails))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isBadRequest())
@@ -115,6 +123,8 @@ class CartControllerTest {
     void getCart_WithElectronicsCategoryProduct_ReturnsExpectedPoints() throws Exception {
         // given: 사용자 생성
         com.spartaecommerce.user.domain.entity.User user = com.spartaecommerce.user.domain.entity.User.createNew(
+            "testuser2",
+            "password",
             "test2@example.com",
             "Test User 2",
             "010-2222-3333"
@@ -144,9 +154,13 @@ class CartControllerTest {
         ProductJpaEntity productEntity = ProductJpaEntity.from(product);
         productEntity = productJpaRepository.save(productEntity);
 
+        // given: 인증된 사용자 생성
+        CustomUserDetails userDetails = new CustomUserDetails(userId, "testuser2", "password");
+
         // given: 장바구니에 상품 추가 (수량: 2)
         CartAddItemRequest addRequest = new CartAddItemRequest(productEntity.getProductId(), 2);
-        mockMvc.perform(post("/api/v1/carts/" + userId + "/items")
+        mockMvc.perform(post("/api/v1/cart-items")
+                .with(user(userDetails))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(addRequest)))
             .andExpect(status().isOk());
@@ -154,7 +168,8 @@ class CartControllerTest {
         // when & then: 장바구니 조회 시 예상 포인트 확인
         // 총 금액: 10,000 * 2 = 20,000
         // 예상 포인트: 20,000 * 0.05 = 1,000
-        mockMvc.perform(get("/api/v1/carts/" + userId))
+        mockMvc.perform(get("/api/v1/cart-items")
+                .with(user(userDetails)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.totalAmount").value(20000.00))
             .andExpect(jsonPath("$.data.expectedPoints").value(1000));
@@ -165,6 +180,8 @@ class CartControllerTest {
     void addItem_InsufficientStock_Returns400() throws Exception {
         // given: 사용자 생성
         com.spartaecommerce.user.domain.entity.User user = com.spartaecommerce.user.domain.entity.User.createNew(
+            "testuser3",
+            "password",
             "test3@example.com",
             "Test User 3",
             "010-3333-4444"
@@ -193,10 +210,14 @@ class CartControllerTest {
         ProductJpaEntity productEntity = ProductJpaEntity.from(product);
         productEntity = productJpaRepository.save(productEntity);
 
+        // given: 인증된 사용자 생성
+        CustomUserDetails userDetails = new CustomUserDetails(userId, "testuser3", "password");
+
         // when & then: 6개 주문 시도 시 400 응답
         CartAddItemRequest request = new CartAddItemRequest(productEntity.getProductId(), 6);
 
-        mockMvc.perform(post("/api/v1/carts/" + userId + "/items")
+        mockMvc.perform(post("/api/v1/cart-items")
+                .with(user(userDetails))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isBadRequest())

@@ -14,6 +14,10 @@ public class User {
 
     private Long userId;
 
+    private String username;
+
+    private String password;
+
     private String email;
 
     private String name;
@@ -29,6 +33,24 @@ public class User {
     private LocalDateTime updatedAt;
 
     public static User createNew(
+        String username,
+        String encodedPassword,
+        String email,
+        String name,
+        String phoneNumber
+    ) {
+        return User.builder()
+            .username(username)
+            .password(encodedPassword)
+            .email(email)
+            .name(name)
+            .phoneNumber(phoneNumber)
+            .grade(UserGrade.NORMAL)
+            .deleted(false)
+            .build();
+    }
+
+    public static User createNewForAuth(
         String email,
         String name,
         String phoneNumber
@@ -58,5 +80,9 @@ public class User {
 
     public boolean isVip() {
         return this.grade.equals(UserGrade.VIP);
+    }
+
+    public boolean isPasswordMatch(String rawPassword, String encodedPassword) {
+        return this.password.equals(encodedPassword);
     }
 }

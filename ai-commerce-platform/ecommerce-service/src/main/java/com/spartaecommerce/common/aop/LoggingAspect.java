@@ -52,8 +52,8 @@ public class LoggingAspect {
      * - UserController의 create, update 메서드
      * - 다른 도메인도 필요 시 추가 가능
      */
-    @Pointcut("execution(* com.spartaecommerce.user.presentation.controller.UserController.create*(..)) || " +
-        "execution(* com.spartaecommerce.user.presentation.controller.UserController.update*(..))")
+    @Pointcut("execution(* com.spartaecommerce.user.adapter.in.web.UserController.create*(..)) || " +
+        "execution(* com.spartaecommerce.user.adapter.in.web.UserController.update*(..))")
     public void userModificationMethods() {
     }
 

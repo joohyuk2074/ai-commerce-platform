@@ -9,6 +9,7 @@ public enum ErrorCode {
 
     // common
     INVALID_REQUEST(400, "INVALID_REQUEST", "The bad request."),
+    UNAUTHORIZED(401, "UNAUTHORIZED", "Authentication is required."),
 
     // jpa
     ENTITY_NOT_FOUND(404, "ENTITY_NOT_FOUND", "The requested entity does not exist."),
