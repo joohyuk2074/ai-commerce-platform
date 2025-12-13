@@ -48,8 +48,16 @@ public record Money(
         return this.amount.compareTo(other.amount) > 0;
     }
 
+    public boolean isGreaterThanEqual(Money other) {
+        return this.amount.compareTo(other.amount) >= 0;
+    }
+
     public boolean isLessThan(Money other) {
         return this.amount.compareTo(other.amount) < 0;
+    }
+
+    public boolean isLessThanEqual(Money other) {
+        return this.amount.compareTo(other.amount) <= 0;
     }
 
     public boolean isZero() {
