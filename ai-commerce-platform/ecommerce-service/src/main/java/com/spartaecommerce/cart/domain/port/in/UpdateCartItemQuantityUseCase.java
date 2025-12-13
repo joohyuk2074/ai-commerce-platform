@@ -1,6 +1,6 @@
 package com.spartaecommerce.cart.domain.port.in;
 
-import com.spartaecommerce.cart.domain.command.CartUpdateItemQuantityCommand;
+import com.spartaecommerce.cart.application.dto.command.CartUpdateItemQuantityCommand;
 
 public interface UpdateCartItemQuantityUseCase {
 

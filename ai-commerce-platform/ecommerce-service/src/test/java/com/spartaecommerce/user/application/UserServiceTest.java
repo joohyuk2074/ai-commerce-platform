@@ -6,7 +6,7 @@ import com.spartaecommerce.user.application.dto.command.UserCreateCommand;
 import com.spartaecommerce.user.domain.entity.User;
 import com.spartaecommerce.user.domain.repository.UserFakeRepository;
 import com.spartaecommerce.pointwallet.domain.entity.PointWallet;
-import com.spartaecommerce.wallet.domain.repository.PointWalletFakeRepository;
+import com.spartaecommerce.pointwallet.domain.port.out.PointWalletFakeRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +26,7 @@ class UserServiceTest {
     void setUp() {
         userRepository = new UserFakeRepository();
         walletRepository = new PointWalletFakeRepository();
-        sut = new UserService(userRepository, walletRepository);
+        sut = new UserService(userRepository, walletRepository, walletRepository);
     }
 
     @AfterEach

@@ -9,7 +9,9 @@ import com.spartaecommerce.order.application.dto.command.OrderStatusUpdateComman
 import com.spartaecommerce.order.domain.entity.Order;
 import com.spartaecommerce.order.domain.entity.OrderItem;
 import com.spartaecommerce.order.domain.entity.OrderStatus;
-import com.spartaecommerce.order.domain.repository.OrderRepository;
+import com.spartaecommerce.order.domain.port.in.OrderCommandUseCase;
+import com.spartaecommerce.order.domain.port.out.LoadOrderPort;
+import com.spartaecommerce.order.domain.port.out.SaveOrderPort;
 import com.spartaecommerce.product.domain.entity.Product;
 import com.spartaecommerce.user.domain.entity.User;
 import com.spartaecommerce.user.domain.repository.UserRepository;
@@ -25,15 +27,17 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class OrderCommandService {
+public class OrderCommandService implements OrderCommandUseCase {
 
     private final UserRepository userRepository;
-    private final OrderRepository orderRepository;
+    private final SaveOrderPort saveOrderPort;
+    private final LoadOrderPort loadOrderPort;
     private final OrderItemProcessor orderItemProcessor;
     private final OrderPointProcessor orderPointProcessor;
     private final OrderHistoryRecorder orderHistoryRecorder;
 
     // TODO: Outbox + Saga 패턴 적용하여 락 범위 최소화
+    @Override
     @DistributedLock(
         key = "'product:stock:' + #createCommand.orderItemCreateCommands().get(0).productId()",
         errorMessage = "상품 재고 처리 중입니다. 잠시 후 다시 시도해주세요."
@@ -74,7 +78,7 @@ public class OrderCommandService {
         // Order에 포인트 금액 설정 (취소 시 복구/회수를 위해)
         order.setPointAmounts(usedPoints, earnedPointsMoney);
 
-        Long createdOrderId = orderRepository.save(order);
+        Long createdOrderId = saveOrderPort.save(order);
         orderItemProcessor.saveProducts(products);
 
         // 포인트 트랜잭션 기록
@@ -89,6 +93,7 @@ public class OrderCommandService {
         return createdOrderId;
     }
 
+    @Override
     @DistributedLock(
         key = "'order:' + #updateCommand.orderId() + ':status'",
         waitTime = 3000L,
@@ -101,11 +106,11 @@ public class OrderCommandService {
             return;
         }
 
-        Order order = orderRepository.getById(updateCommand.orderId());
+        Order order = loadOrderPort.getById(updateCommand.orderId());
         OrderStatus previousStatus = order.getStatus();
 
         order.updateOrderStatus(updateCommand.orderStatus());
-        orderRepository.save(order);
+        saveOrderPort.save(order);
 
         orderHistoryRecorder.recordStatusChange(
             updateCommand.orderId(),
@@ -115,6 +120,7 @@ public class OrderCommandService {
         );
     }
 
+    @Override
     @DistributedLock(
         key = "'order:' + #orderId + ':cancel'",
         waitTime = 3000L,
@@ -122,7 +128,7 @@ public class OrderCommandService {
     )
     public void cancel(Long orderId) {
         // 1. Order 조회
-        Order order = orderRepository.getById(orderId);
+        Order order = loadOrderPort.getById(orderId);
         OrderStatus previousStatus = order.getStatus();
 
         // 2. 주문 취소 (도메인 로직)
@@ -161,7 +167,7 @@ public class OrderCommandService {
         );
 
         // 6. Order, Product 저장
-        orderRepository.save(order);
+        saveOrderPort.save(order);
         orderItemProcessor.saveProducts(products);
 
         // 7. 취소 히스토리 기록

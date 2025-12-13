@@ -4,16 +4,16 @@ import com.spartaecommerce.cart.application.dto.result.CartResult;
 import com.spartaecommerce.cart.domain.entity.Cart;
 import com.spartaecommerce.cart.domain.entity.CartItem;
 import com.spartaecommerce.cart.domain.port.in.GetCartUseCase;
-import com.spartaecommerce.cart.domain.query.CartGetQuery;
-import com.spartaecommerce.cart.domain.repository.CartRepository;
-import com.spartaecommerce.cart.domain.storage.CartStorage;
+import com.spartaecommerce.cart.domain.port.out.CartStoragePort;
+import com.spartaecommerce.cart.domain.port.out.LoadCartPort;
+import com.spartaecommerce.cart.application.dto.query.CartGetQuery;
 import com.spartaecommerce.category.domain.entity.Category;
-import com.spartaecommerce.category.domain.repository.CategoryRepository;
+import com.spartaecommerce.category.domain.port.out.LoadCategoryPort;
 import com.spartaecommerce.common.config.properties.PointsProperties;
 import com.spartaecommerce.pointwallet.domain.entity.PointPolicy;
 import com.spartaecommerce.pointwallet.domain.service.PointCalculator;
 import com.spartaecommerce.product.domain.entity.Product;
-import com.spartaecommerce.product.domain.repository.ProductRepository;
+import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import com.spartaecommerce.user.domain.entity.User;
 import com.spartaecommerce.user.domain.port.out.LoadUserPort;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +33,10 @@ import java.util.stream.Collectors;
 public class CartQueryService implements GetCartUseCase {
 
     private final LoadUserPort loadUserPort;
-    private final CartRepository cartRepository;
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
-    private final CartStorage cartStorage;
+    private final LoadCartPort loadCartPort;
+    private final LoadProductPort loadProductPort;
+    private final LoadCategoryPort loadCategoryPort;
+    private final CartStoragePort cartStoragePort;
     private final PointsProperties pointsProperties;
     private final PointCalculator pointCalculator;
 
@@ -63,13 +63,13 @@ public class CartQueryService implements GetCartUseCase {
     }
 
     private Cart getCartFromStorageOrDatabase(Long userId) {
-        return cartStorage.get(userId)
+        return cartStoragePort.get(userId)
             .orElseGet(() -> {
-                Cart dbCart = cartRepository.findByUserId(userId)
+                Cart dbCart = loadCartPort.findByUserId(userId)
                     .orElseGet(() -> Cart.createNew(userId));
 
                 if (dbCart.getCartId() != null) {
-                    cartStorage.save(dbCart);
+                    cartStoragePort.save(dbCart);
                 }
 
                 return dbCart;
@@ -81,13 +81,13 @@ public class CartQueryService implements GetCartUseCase {
             .map(CartItem::getProductId)
             .toList();
 
-        List<Product> products = productRepository.findAllByProductIdIn(productIds);
+        List<Product> products = loadProductPort.findAllByProductIdIn(productIds);
 
         Set<Long> categoryIds = products.stream()
             .map(Product::getCategoryId)
             .collect(Collectors.toSet());
 
-        List<Category> categories = categoryRepository.findAllByCategoryIdIn(categoryIds);
+        List<Category> categories = loadCategoryPort.findAllByCategoryIdIn(categoryIds);
 
         Map<Long, Category> categoryMap = categories.stream()
             .collect(Collectors.toMap(

@@ -2,7 +2,6 @@ package com.spartaecommerce.coupon.adapter.out.persistence;
 
 import com.spartaecommerce.coupon.domain.port.out.LoadProductPort;
 import com.spartaecommerce.product.domain.entity.Product;
-import com.spartaecommerce.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,10 +13,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ProductPersistenceAdapter implements LoadProductPort {
 
-    private final ProductRepository productRepository;
+    private final com.spartaecommerce.product.domain.port.out.LoadProductPort loadProductPort;
 
     @Override
     public Product getById(Long productId) {
-        return productRepository.getById(productId);
+        return loadProductPort.getById(productId);
     }
 }

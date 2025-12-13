@@ -1,13 +1,14 @@
 package com.spartaecommerce.cart.application;
 
-import com.spartaecommerce.cart.domain.command.CartAddItemCommand;
+import com.spartaecommerce.cart.application.dto.command.CartAddItemCommand;
 import com.spartaecommerce.cart.domain.entity.Cart;
 import com.spartaecommerce.cart.domain.port.in.AddCartItemUseCase;
-import com.spartaecommerce.cart.domain.repository.CartRepository;
-import com.spartaecommerce.cart.domain.storage.CartStorage;
+import com.spartaecommerce.cart.domain.port.out.CartStoragePort;
+import com.spartaecommerce.cart.domain.port.out.LoadCartPort;
+import com.spartaecommerce.cart.domain.port.out.SaveCartPort;
 import com.spartaecommerce.common.config.properties.CartProperties;
 import com.spartaecommerce.product.domain.entity.Product;
-import com.spartaecommerce.product.domain.repository.ProductRepository;
+import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,16 +20,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class CartItemAddService implements AddCartItemUseCase {
 
-    private final ProductRepository productRepository;
-    private final CartRepository cartRepository;
+    private final LoadProductPort loadProductPort;
+    private final LoadCartPort loadCartPort;
+    private final SaveCartPort saveCartPort;
     private final CartProperties cartProperties;
-    private final CartStorage cartStorage;
+    private final CartStoragePort cartStoragePort;
 
     @Override
     public void addItem(CartAddItemCommand command) {
-        Product product = productRepository.getById(command.productId());
+        Product product = loadProductPort.getById(command.productId());
 
-        Cart cart = cartRepository.findByUserId(command.userId())
+        Cart cart = loadCartPort.findByUserId(command.userId())
             .orElseGet(() -> Cart.createNew(command.userId()));
 
         cart.addItem(
@@ -38,7 +40,7 @@ public class CartItemAddService implements AddCartItemUseCase {
             cartProperties.getMaxItems()
         );
 
-        Cart savedCart = cartRepository.save(cart);
-        cartStorage.save(savedCart);
+        Cart savedCart = saveCartPort.save(cart);
+        cartStoragePort.save(savedCart);
     }
 }

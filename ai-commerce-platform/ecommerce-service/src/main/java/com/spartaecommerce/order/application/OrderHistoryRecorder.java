@@ -3,7 +3,7 @@ package com.spartaecommerce.order.application;
 import com.spartaecommerce.common.util.DateTimeHolder;
 import com.spartaecommerce.order.domain.entity.OrderHistory;
 import com.spartaecommerce.order.domain.entity.OrderStatus;
-import com.spartaecommerce.order.domain.repository.OrderHistoryRepository;
+import com.spartaecommerce.order.domain.port.out.SaveOrderHistoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class OrderHistoryRecorder {
 
-    private final OrderHistoryRepository orderHistoryRepository;
+    private final SaveOrderHistoryPort saveOrderHistoryPort;
     private final DateTimeHolder dateTimeHolder;
 
     /**
@@ -29,7 +29,7 @@ public class OrderHistoryRecorder {
             "최초 주문 생성",
             dateTimeHolder
         );
-        orderHistoryRepository.save(history);
+        saveOrderHistoryPort.save(history);
     }
 
     /**
@@ -43,7 +43,7 @@ public class OrderHistoryRecorder {
             reason,
             dateTimeHolder
         );
-        orderHistoryRepository.save(history);
+        saveOrderHistoryPort.save(history);
     }
 
     /**

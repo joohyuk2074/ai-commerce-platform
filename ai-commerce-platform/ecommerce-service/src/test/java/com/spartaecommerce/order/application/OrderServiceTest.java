@@ -1,6 +1,6 @@
 package com.spartaecommerce.order.application;
 
-import com.spartaecommerce.category.domain.repository.CategoryFakeRepository;
+import com.spartaecommerce.category.domain.port.out.CategoryFakeRepository;
 import com.spartaecommerce.common.config.properties.PointsProperties;
 import com.spartaecommerce.common.domain.Money;
 import com.spartaecommerce.common.util.FakeDateTimeHolder;
@@ -8,16 +8,16 @@ import com.spartaecommerce.order.domain.entity.Order;
 import com.spartaecommerce.order.domain.entity.OrderHistory;
 import com.spartaecommerce.order.domain.entity.OrderItem;
 import com.spartaecommerce.order.domain.entity.OrderStatus;
-import com.spartaecommerce.order.domain.repository.OrderFakeRepository;
-import com.spartaecommerce.order.domain.repository.OrderHistoryFakeRepository;
+import com.spartaecommerce.order.domain.port.out.OrderFakeRepository;
+import com.spartaecommerce.order.domain.port.out.OrderHistoryFakeRepository;
 import com.spartaecommerce.pointwallet.domain.service.PointCalculator;
 import com.spartaecommerce.product.domain.entity.Product;
-import com.spartaecommerce.product.domain.repository.ProductFakeRepository;
+import com.spartaecommerce.product.domain.port.out.ProductFakeRepository;
 import com.spartaecommerce.user.domain.entity.User;
 import com.spartaecommerce.user.domain.entity.UserGrade;
 import com.spartaecommerce.user.domain.repository.UserFakeRepository;
-import com.spartaecommerce.wallet.domain.repository.PointTransactionFakeRepository;
-import com.spartaecommerce.wallet.domain.repository.PointWalletFakeRepository;
+import com.spartaecommerce.pointwallet.domain.port.out.PointTransactionFakeRepository;
+import com.spartaecommerce.pointwallet.domain.port.out.PointWalletFakeRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -69,12 +69,13 @@ class OrderServiceTest {
         pointsProperties.setMaxBalance(BigDecimal.valueOf(1000000L));
 
         // OrderItemProcessor 생성
-        OrderItemProcessor orderItemProcessor = new OrderItemProcessor(productRepository, categoryRepository);
+        OrderItemProcessor orderItemProcessor = new OrderItemProcessor(productRepository, productRepository, categoryRepository);
 
         // OrderPointProcessor 생성
         PointCalculator pointCalculator = new PointCalculator();
         OrderPointProcessor orderPointProcessor = new OrderPointProcessor(
             pointCalculator,
+            pointWalletRepository,
             pointWalletRepository,
             pointTransactionRepository,
             pointsProperties,
@@ -86,6 +87,7 @@ class OrderServiceTest {
 
         sut = new OrderCommandService(
             userRepository,
+            orderRepository,
             orderRepository,
             orderItemProcessor,
             orderPointProcessor,

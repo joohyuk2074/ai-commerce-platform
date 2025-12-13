@@ -41,11 +41,11 @@ public class Category {
     }
 
     public void update(String name, String description) {
-        if (name == null || !name.isBlank()) {
+        if (name != null && !name.isBlank()) {
             this.name = name;
         }
 
-        if (description == null || !description.isBlank()) {
+        if (description != null && !description.isBlank()) {
             this.description = description;
         }
     }

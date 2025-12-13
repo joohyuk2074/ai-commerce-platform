@@ -3,7 +3,7 @@ package com.spartaecommerce.user.application.service;
 import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;
 import com.spartaecommerce.pointwallet.domain.entity.PointWallet;
-import com.spartaecommerce.pointwallet.domain.repository.PointWalletRepository;
+import com.spartaecommerce.pointwallet.domain.port.out.SavePointWalletPort;
 import com.spartaecommerce.user.application.dto.command.RegisterUserCommand;
 import com.spartaecommerce.user.domain.entity.User;
 import com.spartaecommerce.user.domain.port.in.RegisterUserUseCase;
@@ -24,7 +24,7 @@ public class RegisterUserService implements RegisterUserUseCase {
     private final LoadUserPort loadUserPort;
     private final SaveUserPort saveUserPort;
     private final PasswordEncoderPort passwordEncoderPort;
-    private final PointWalletRepository walletRepository;
+    private final SavePointWalletPort savePointWalletPort;
 
     @Override
     @Transactional
@@ -56,7 +56,7 @@ public class RegisterUserService implements RegisterUserUseCase {
         Long userId = saveUserPort.save(user);
 
         PointWallet wallet = PointWallet.createNew(userId);
-        walletRepository.save(wallet);
+        savePointWalletPort.save(wallet);
 
         log.info("User {} has been created", userId);
 

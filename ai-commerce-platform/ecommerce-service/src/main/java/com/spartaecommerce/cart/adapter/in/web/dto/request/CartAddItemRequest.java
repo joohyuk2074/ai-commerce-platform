@@ -1,6 +1,6 @@
 package com.spartaecommerce.cart.adapter.in.web.dto.request;
 
-import com.spartaecommerce.cart.domain.command.CartAddItemCommand;
+import com.spartaecommerce.cart.application.dto.command.CartAddItemCommand;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 

@@ -1,6 +1,6 @@
 package com.spartaecommerce.cart.domain.port.in;
 
-import com.spartaecommerce.cart.domain.command.CartAddItemCommand;
+import com.spartaecommerce.cart.application.dto.command.CartAddItemCommand;
 
 public interface AddCartItemUseCase {
 

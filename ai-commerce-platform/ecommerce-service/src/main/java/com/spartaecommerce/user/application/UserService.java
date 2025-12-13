@@ -9,7 +9,8 @@ import com.spartaecommerce.user.application.dto.result.UserResult;
 import com.spartaecommerce.user.domain.entity.User;
 import com.spartaecommerce.user.domain.repository.UserRepository;
 import com.spartaecommerce.pointwallet.domain.entity.PointWallet;
-import com.spartaecommerce.pointwallet.domain.repository.PointWalletRepository;
+import com.spartaecommerce.pointwallet.domain.port.out.LoadPointWalletPort;
+import com.spartaecommerce.pointwallet.domain.port.out.SavePointWalletPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PointWalletRepository walletRepository;
+    private final LoadPointWalletPort loadPointWalletPort;
+    private final SavePointWalletPort savePointWalletPort;
 
     @Transactional
     public Long create(UserCreateCommand createCommand) {
@@ -37,7 +39,7 @@ public class UserService {
         Long userId = userRepository.save(user);
 
         PointWallet wallet = PointWallet.createNew(userId);
-        walletRepository.save(wallet);
+        savePointWalletPort.save(wallet);
 
         return userId;
     }
@@ -73,8 +75,8 @@ public class UserService {
         user.delete();
         userRepository.save(user);
 
-        PointWallet wallet = walletRepository.getByUserId(userId);
+        PointWallet wallet = loadPointWalletPort.getByUserId(userId);
         wallet.deactivate();
-        walletRepository.save(wallet);
+        savePointWalletPort.save(wallet);
     }
 }

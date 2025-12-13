@@ -1,6 +1,6 @@
 package com.spartaecommerce.cart.domain.port.in;
 
-import com.spartaecommerce.cart.domain.command.CartClearCommand;
+import com.spartaecommerce.cart.application.dto.command.CartClearCommand;
 
 public interface ClearCartUseCase {
 

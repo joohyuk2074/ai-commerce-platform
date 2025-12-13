@@ -8,8 +8,10 @@ import com.spartaecommerce.order.domain.entity.OrderItem;
 import com.spartaecommerce.pointwallet.domain.entity.PointPolicy;
 import com.spartaecommerce.pointwallet.domain.entity.PointTransaction;
 import com.spartaecommerce.pointwallet.domain.entity.PointWallet;
-import com.spartaecommerce.pointwallet.domain.repository.PointTransactionRepository;
-import com.spartaecommerce.pointwallet.domain.repository.PointWalletRepository;
+import com.spartaecommerce.pointwallet.domain.port.out.LoadPointTransactionPort;
+import com.spartaecommerce.pointwallet.domain.port.out.SavePointTransactionPort;
+import com.spartaecommerce.pointwallet.domain.port.out.LoadPointWalletPort;
+import com.spartaecommerce.pointwallet.domain.port.out.SavePointWalletPort;
 import com.spartaecommerce.pointwallet.domain.service.PointCalculator;
 import com.spartaecommerce.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +33,9 @@ import java.util.Map;
 public class OrderPointProcessor {
 
     private final PointCalculator pointCalculator;
-    private final PointWalletRepository pointWalletRepository;
-    private final PointTransactionRepository pointTransactionRepository;
+    private final LoadPointWalletPort loadPointWalletPort;
+    private final SavePointWalletPort savePointWalletPort;
+    private final SavePointTransactionPort savePointTransactionPort;
     private final PointsProperties pointsProperties;
     private final DateTimeHolder dateTimeHolder;
 
@@ -61,27 +64,27 @@ public class OrderPointProcessor {
             return Money.zero();
         }
 
-        PointWallet wallet = pointWalletRepository.getByUserId(userId);
+        PointWallet wallet = loadPointWalletPort.getByUserId(userId);
         Money usePoints = Money.from(usePointAmount);
         wallet.usePoints(usePoints, pointsProperties.getMinUsagePoint());
-        pointWalletRepository.save(wallet);
+        savePointWalletPort.save(wallet);
 
         return usePoints;
     }
 
     public Money earnPoints(Long userId, BigDecimal earnedPoints) {
-        PointWallet wallet = pointWalletRepository.getByUserId(userId);
+        PointWallet wallet = loadPointWalletPort.getByUserId(userId);
         Money earnedPointsMoney = Money.from(earnedPoints);
         Money maxBalance = Money.from(pointsProperties.getMaxBalance());
 
         wallet.earnPoints(earnedPointsMoney, maxBalance);
-        pointWalletRepository.save(wallet);
+        savePointWalletPort.save(wallet);
 
         return earnedPointsMoney;
     }
 
     public void recordEarnTransaction(Long userId, Money earnedPoints, Long orderId) {
-        PointWallet wallet = pointWalletRepository.getByUserId(userId);
+        PointWallet wallet = loadPointWalletPort.getByUserId(userId);
         LocalDateTime pointExpireAt = dateTimeHolder.getCurrentDateTime().plusYears(1);
 
         PointTransaction pointTransaction = PointTransaction.createEarn(
@@ -91,7 +94,7 @@ public class OrderPointProcessor {
             pointExpireAt,
             "주문 적립 (Order ID: " + orderId + ")"
         );
-        pointTransactionRepository.save(pointTransaction);
+        savePointTransactionPort.save(pointTransaction);
     }
 
     public void recordUseTransaction(Long userId, Money usedPoints, Long orderId) {
@@ -99,14 +102,14 @@ public class OrderPointProcessor {
             return;
         }
 
-        PointWallet wallet = pointWalletRepository.getByUserId(userId);
+        PointWallet wallet = loadPointWalletPort.getByUserId(userId);
         PointTransaction pointTransaction = PointTransaction.createUse(
             wallet.getWalletId(),
             usedPoints,
             wallet.getBalance(),
             "주문 사용 (Order ID: " + orderId + ")"
         );
-        pointTransactionRepository.save(pointTransaction);
+        savePointTransactionPort.save(pointTransaction);
     }
 
     public void refundUsedPoints(Long userId, Money usedPointAmount, Long orderId) {
@@ -114,12 +117,12 @@ public class OrderPointProcessor {
             return;
         }
 
-        PointWallet wallet = pointWalletRepository.getByUserId(userId);
+        PointWallet wallet = loadPointWalletPort.getByUserId(userId);
         Money maxBalance = Money.from(pointsProperties.getMaxBalance());
 
         // 포인트 복구 (적립)
         wallet.earnPoints(usedPointAmount, maxBalance);
-        pointWalletRepository.save(wallet);
+        savePointWalletPort.save(wallet);
 
         // 트랜잭션 기록
         LocalDateTime pointExpireAt = dateTimeHolder.getCurrentDateTime().plusYears(1);
@@ -130,7 +133,7 @@ public class OrderPointProcessor {
             pointExpireAt,
             "주문 취소 - 사용 포인트 복구 (Order ID: " + orderId + ")"
         );
-        pointTransactionRepository.save(pointTransaction);
+        savePointTransactionPort.save(pointTransaction);
     }
 
     public void reclaimEarnedPoints(Long userId, Money earnedPointAmount, Long orderId) {
@@ -138,11 +141,11 @@ public class OrderPointProcessor {
             return;
         }
 
-        PointWallet wallet = pointWalletRepository.getByUserId(userId);
+        PointWallet wallet = loadPointWalletPort.getByUserId(userId);
 
         // 포인트 회수 (차감) - 최소 사용 포인트 제한 없이 차감
         wallet.usePoints(earnedPointAmount, 0);
-        pointWalletRepository.save(wallet);
+        savePointWalletPort.save(wallet);
 
         // 트랜잭션 기록
         PointTransaction pointTransaction = PointTransaction.createUse(
@@ -151,6 +154,6 @@ public class OrderPointProcessor {
             wallet.getBalance(),
             "주문 취소 - 적립 포인트 회수 (Order ID: " + orderId + ")"
         );
-        pointTransactionRepository.save(pointTransaction);
+        savePointTransactionPort.save(pointTransaction);
     }
 }

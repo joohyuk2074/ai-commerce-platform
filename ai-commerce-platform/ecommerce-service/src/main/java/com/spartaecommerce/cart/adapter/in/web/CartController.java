@@ -1,10 +1,10 @@
 package com.spartaecommerce.cart.adapter.in.web;
 
 import com.spartaecommerce.cart.application.dto.result.CartResult;
-import com.spartaecommerce.cart.domain.command.CartClearCommand;
-import com.spartaecommerce.cart.domain.command.CartRemoveItemCommand;
+import com.spartaecommerce.cart.application.dto.command.CartClearCommand;
+import com.spartaecommerce.cart.application.dto.command.CartRemoveItemCommand;
 import com.spartaecommerce.cart.domain.port.in.*;
-import com.spartaecommerce.cart.domain.query.CartGetQuery;
+import com.spartaecommerce.cart.application.dto.query.CartGetQuery;
 import com.spartaecommerce.cart.adapter.in.web.dto.request.CartAddItemRequest;
 import com.spartaecommerce.cart.adapter.in.web.dto.request.CartUpdateItemQuantityRequest;
 import com.spartaecommerce.cart.adapter.in.web.dto.response.CartResponse;

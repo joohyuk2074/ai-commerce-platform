@@ -2,8 +2,8 @@ package com.spartaecommerce.user.presentation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spartaecommerce.user.adapter.in.web.dto.RegisterRequest;
-import com.spartaecommerce.pointwallet.jpa.entity.PointWalletJpaEntity;
-import com.spartaecommerce.pointwallet.jpa.repository.PointWalletJpaRepository;
+import com.spartaecommerce.pointwallet.adapter.out.persistence.jpa.entity.PointWalletJpaEntity;
+import com.spartaecommerce.pointwallet.adapter.out.persistence.jpa.repository.PointWalletJpaRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

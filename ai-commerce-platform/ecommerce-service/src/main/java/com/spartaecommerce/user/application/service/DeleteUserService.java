@@ -3,7 +3,8 @@ package com.spartaecommerce.user.application.service;
 import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;
 import com.spartaecommerce.pointwallet.domain.entity.PointWallet;
-import com.spartaecommerce.pointwallet.domain.repository.PointWalletRepository;
+import com.spartaecommerce.pointwallet.domain.port.out.LoadPointWalletPort;
+import com.spartaecommerce.pointwallet.domain.port.out.SavePointWalletPort;
 import com.spartaecommerce.user.domain.entity.User;
 import com.spartaecommerce.user.domain.port.in.DeleteUserUseCase;
 import com.spartaecommerce.user.domain.port.out.LoadUserPort;
@@ -19,7 +20,8 @@ public class DeleteUserService implements DeleteUserUseCase {
 
     private final LoadUserPort loadUserPort;
     private final SaveUserPort saveUserPort;
-    private final PointWalletRepository walletRepository;
+    private final LoadPointWalletPort loadPointWalletPort;
+    private final SavePointWalletPort savePointWalletPort;
 
     @Override
     @Transactional
@@ -36,8 +38,8 @@ public class DeleteUserService implements DeleteUserUseCase {
         user.delete();
         saveUserPort.save(user);
 
-        PointWallet wallet = walletRepository.getByUserId(userId);
+        PointWallet wallet = loadPointWalletPort.getByUserId(userId);
         wallet.deactivate();
-        walletRepository.save(wallet);
+        savePointWalletPort.save(wallet);
     }
 }

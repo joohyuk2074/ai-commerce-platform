@@ -1,12 +1,13 @@
 package com.spartaecommerce.order.application;
 
 import com.spartaecommerce.category.domain.entity.Category;
-import com.spartaecommerce.category.domain.repository.CategoryRepository;
+import com.spartaecommerce.category.domain.port.out.LoadCategoryPort;
 import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;
 import com.spartaecommerce.order.application.dto.command.OrderItemCreateCommand;
 import com.spartaecommerce.product.domain.entity.Product;
-import com.spartaecommerce.product.domain.repository.ProductRepository;
+import com.spartaecommerce.product.domain.port.out.LoadProductPort;
+import com.spartaecommerce.product.domain.port.out.SaveProductPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,15 +25,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderItemProcessor {
 
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
+    private final LoadProductPort loadProductPort;
+    private final SaveProductPort saveProductPort;
+    private final LoadCategoryPort loadCategoryPort;
 
     public List<Product> loadProducts(List<OrderItemCreateCommand> orderItemCreateCommands) {
         List<Long> productIds = orderItemCreateCommands.stream()
             .map(OrderItemCreateCommand::productId)
             .toList();
 
-        List<Product> products = productRepository.findAllByProductIdIn(productIds);
+        List<Product> products = loadProductPort.findAllByProductIdIn(productIds);
         if (products.size() != productIds.size()) {
             throw new BusinessException(
                 ErrorCode.ENTITY_NOT_FOUND,
@@ -56,7 +58,7 @@ public class OrderItemProcessor {
             .map(Product::getCategoryId)
             .collect(Collectors.toSet());
 
-        return categoryRepository
+        return loadCategoryPort
             .findAllByCategoryIdIn(categoryIds)
             .stream()
             .collect(Collectors.toMap(
@@ -88,6 +90,6 @@ public class OrderItemProcessor {
     }
 
     public void saveProducts(List<Product> products) {
-        productRepository.saveAll(products);
+        saveProductPort.saveAll(products);
     }
 }

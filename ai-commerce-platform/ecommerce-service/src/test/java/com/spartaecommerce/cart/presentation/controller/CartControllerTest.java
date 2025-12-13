@@ -2,10 +2,10 @@ package com.spartaecommerce.cart.presentation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spartaecommerce.cart.adapter.in.web.dto.request.CartAddItemRequest;
-import com.spartaecommerce.category.infrastructure.persistence.jpa.entity.CategoryJpaEntity;
-import com.spartaecommerce.category.infrastructure.persistence.jpa.repository.CategoryJpaRepository;
-import com.spartaecommerce.product.infrastructure.persistence.jpa.entity.ProductJpaEntity;
-import com.spartaecommerce.product.infrastructure.persistence.jpa.repository.ProductJpaRepository;
+import com.spartaecommerce.category.adapter.out.persistence.jpa.entity.CategoryJpaEntity;
+import com.spartaecommerce.category.adapter.out.persistence.jpa.repository.CategoryJpaRepository;
+import com.spartaecommerce.product.adapter.out.persistence.jpa.entity.ProductJpaEntity;
+import com.spartaecommerce.product.adapter.out.persistence.jpa.repository.ProductJpaRepository;
 import com.spartaecommerce.user.adapter.out.persistence.jpa.entity.UserJpaEntity;
 import com.spartaecommerce.user.adapter.out.persistence.jpa.repository.UserJpaRepository;
 import com.spartaecommerce.user.adapter.out.security.CustomUserDetails;
