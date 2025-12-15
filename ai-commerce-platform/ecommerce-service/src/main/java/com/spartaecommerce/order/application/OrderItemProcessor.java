@@ -7,7 +7,6 @@ import com.spartaecommerce.common.exception.ErrorCode;
 import com.spartaecommerce.order.application.dto.command.OrderItemCreateCommand;
 import com.spartaecommerce.product.domain.entity.Product;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
-import com.spartaecommerce.product.domain.port.out.SaveProductPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +25,6 @@ import java.util.stream.Collectors;
 public class OrderItemProcessor {
 
     private final LoadProductPort loadProductPort;
-    private final SaveProductPort saveProductPort;
     private final LoadCategoryPort loadCategoryPort;
 
     public List<Product> loadProducts(List<OrderItemCreateCommand> orderItemCreateCommands) {
@@ -87,9 +85,5 @@ public class OrderItemProcessor {
                 product.restoreQuantity(quantity);
             }
         }
-    }
-
-    public void saveProducts(List<Product> products) {
-        saveProductPort.saveAll(products);
     }
 }

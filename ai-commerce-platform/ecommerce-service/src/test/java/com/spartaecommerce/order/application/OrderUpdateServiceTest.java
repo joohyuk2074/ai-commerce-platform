@@ -29,11 +29,16 @@ public class OrderUpdateServiceTest extends OrderServiceTest {
         @DisplayName("PENDING 주문을 COMPLETED로 변경한다")
         void updateOrderStatus_FromPendingToCompleted_UpdatesStatusAndCreatesHistory() {
             // given
-            Order order = createOrder(1L, 1L, 5);
-            Long orderId = orderRepository.save(order);
+            Long userId = createUserWithWallet();
+            Product product = createProduct("클린코드", 50);
+            Long productId = productRepository.save(product);
 
-            OrderHistory orderHistory = createOrderHistory(orderId, null, OrderStatus.PENDING);
-            orderHistoryRepository.save(orderHistory);
+            Long orderId = sut.create(new OrderCreateCommand(
+                userId,
+                List.of(new OrderItemCreateCommand(productId, 5)),
+                "서울시",
+                BigDecimal.ZERO
+            ));
 
             OrderStatusUpdateCommand command = new OrderStatusUpdateCommand(
                 orderId,
@@ -51,8 +56,9 @@ public class OrderUpdateServiceTest extends OrderServiceTest {
             List<OrderHistory> histories = orderHistoryRepository.findByOrderId(orderId);
             assertThat(histories.size()).isEqualTo(2);
 
-            OrderHistory lastHistory = histories.getFirst();
-            assertThat(lastHistory.getToStatus()).isEqualTo(OrderStatus.COMPLETED);
+            boolean hasCompletedHistory = histories.stream()
+                .anyMatch(h -> h.getToStatus() == OrderStatus.COMPLETED);
+            assertThat(hasCompletedHistory).isTrue();
         }
 
         @Test
@@ -62,8 +68,7 @@ public class OrderUpdateServiceTest extends OrderServiceTest {
             int initialStock = 50;
             int orderQuantity = 10;
 
-            User user = createUser();
-            Long userId = userRepository.save(user);
+            Long userId = createUserWithWallet();
 
             Product product = createProduct("클린코드", initialStock);
             Long productId = productRepository.save(product);

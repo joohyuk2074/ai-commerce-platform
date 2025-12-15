@@ -6,7 +6,7 @@ public record CategoryUpdateRequest(
     String name,
     String description
 ) {
-    public CategoryUpdateCommand toCommand() {
-        return new CategoryUpdateCommand(name, description);
+    public CategoryUpdateCommand toCommand(Long categoryId) {
+        return new CategoryUpdateCommand(categoryId, name, description);
     }
 }

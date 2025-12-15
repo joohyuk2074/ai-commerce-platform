@@ -39,8 +39,8 @@ public class CategoryCommandController {
         @PathVariable Long categoryId,
         @Valid @RequestBody CategoryUpdateRequest updateRequest
     ) {
-        CategoryUpdateCommand updateCommand = updateRequest.toCommand();
-        categoryCommandUseCase.update(categoryId, updateCommand);
+        CategoryUpdateCommand updateCommand = updateRequest.toCommand(categoryId);
+        categoryCommandUseCase.update(updateCommand);
         return ResponseEntity.ok(CommonResponse.success(null));
     }
 

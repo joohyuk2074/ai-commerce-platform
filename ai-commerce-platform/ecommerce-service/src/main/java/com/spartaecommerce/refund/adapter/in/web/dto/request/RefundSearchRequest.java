@@ -9,11 +9,9 @@ public record RefundSearchRequest(
     Long userId,
     RefundStatus refundStatus,
     Integer page,
-    Integer size,
-    String sortedBy,
-    String direction
+    Integer size
 ) {
     public RefundSearchQuery toQuery() {
-        return RefundSearchQuery.of(userId, refundStatus, page, size, sortedBy, direction);
+        return RefundSearchQuery.of(userId, refundStatus, page, size);
     }
 }

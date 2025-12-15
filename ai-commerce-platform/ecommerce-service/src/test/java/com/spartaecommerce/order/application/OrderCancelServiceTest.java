@@ -28,17 +28,22 @@ public class OrderCancelServiceTest extends OrderServiceTest {
             int initialStock = 100;
             int orderQuantity = 30;
 
-            User user = createUser();
-            Long userId = userRepository.save(user);
+            Long userId = createUserWithWallet();
 
-            Product product = createProduct("리팩터링", initialStock - orderQuantity);
+            Product product = createProduct("리팩터링", initialStock);
             Long productId = productRepository.save(product);
 
-            Order order = createOrder(userId, productId, orderQuantity);
-            Long orderId = orderRepository.save(order);
+            // 실제로 주문 생성 (재고 차감됨)
+            Long orderId = sut.create(new com.spartaecommerce.order.application.dto.command.OrderCreateCommand(
+                userId,
+                List.of(new com.spartaecommerce.order.application.dto.command.OrderItemCreateCommand(productId, orderQuantity)),
+                "서울시",
+                java.math.BigDecimal.ZERO
+            ));
 
-            OrderHistory newCreateHistory = createOrderHistory(orderId, null, OrderStatus.PENDING);
-            orderHistoryRepository.save(newCreateHistory);
+            // 주문 후 재고 확인
+            Product afterOrder = productRepository.getById(productId);
+            assertThat(afterOrder.getStock()).isEqualTo(initialStock - orderQuantity);
 
             // when
             sut.cancel(orderId);
@@ -52,8 +57,9 @@ public class OrderCancelServiceTest extends OrderServiceTest {
 
             // 취소 히스토리 확인
             List<OrderHistory> histories = orderHistoryRepository.findByOrderId(orderId);
-            OrderHistory orderHistory = histories.getFirst();
-            assertThat(orderHistory.getToStatus()).isEqualTo(OrderStatus.CANCELED);
+            boolean hasCancelHistory = histories.stream()
+                .anyMatch(h -> h.getToStatus() == OrderStatus.CANCELED);
+            assertThat(hasCancelHistory).isTrue();
         }
 
         @Test

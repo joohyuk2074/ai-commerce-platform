@@ -12,15 +12,13 @@ public record RefundSearchQuery(
         Long userId,
         RefundStatus refundStatus,
         Integer page,
-        Integer size,
-        String sortBy,
-        String direction
+        Integer size
     ) {
         if (userId == null) {
             throw new IllegalArgumentException("userId cannot be null");
         }
 
-        CustomPageable customPageable = CustomPageable.of(page, size, sortBy, direction);
+        CustomPageable customPageable = CustomPageable.of(page, size, null, null);
         return new RefundSearchQuery(userId, refundStatus, customPageable);
     }
 }

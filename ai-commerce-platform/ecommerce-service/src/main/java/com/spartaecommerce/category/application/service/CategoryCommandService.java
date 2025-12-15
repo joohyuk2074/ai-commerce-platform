@@ -38,8 +38,8 @@ public class CategoryCommandService implements CategoryCommandUseCase {
     }
 
     @Override
-    public void update(Long categoryId, CategoryUpdateCommand updateCommand) {
-        Category category = loadCategoryPort.getById(categoryId);
+    public void update(CategoryUpdateCommand updateCommand) {
+        Category category = loadCategoryPort.getById(updateCommand.categoryId());
         category.update(updateCommand.name(), updateCommand.description());
         saveCategoryPort.save(category);
     }

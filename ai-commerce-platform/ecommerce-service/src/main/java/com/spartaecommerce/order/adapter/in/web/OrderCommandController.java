@@ -14,10 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
-/**
- * Inbound Adapter for Order Command Operations (State-changing operations)
- * Handles HTTP requests for creating, updating, and canceling orders
- */
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor

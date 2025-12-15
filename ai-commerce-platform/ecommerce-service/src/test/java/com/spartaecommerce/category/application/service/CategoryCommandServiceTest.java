@@ -128,12 +128,13 @@ class CategoryCommandServiceTest {
             Long categoryId = categoryRepository.save(createCategory("도서"));
 
             CategoryUpdateCommand command = new CategoryUpdateCommand(
+                categoryId,
                 "책",
                 "책 카테고리"
             );
 
             // when
-            sut.update(categoryId, command);
+            sut.update(command);
 
             // then
             Category updatedCategory = categoryRepository.getById(categoryId);
@@ -147,12 +148,13 @@ class CategoryCommandServiceTest {
             // given
             Long nonExistentCategoryId = 999L;
             CategoryUpdateCommand command = new CategoryUpdateCommand(
+                nonExistentCategoryId,
                 "새 이름",
                 "새 설명"
             );
 
             // when & then
-            assertThatThrownBy(() -> sut.update(nonExistentCategoryId, command))
+            assertThatThrownBy(() -> sut.update(command))
                 .isInstanceOf(BusinessException.class)
                 .extracting(ex -> ((BusinessException) ex).getErrorCode())
                 .isEqualTo(ErrorCode.ENTITY_NOT_FOUND);

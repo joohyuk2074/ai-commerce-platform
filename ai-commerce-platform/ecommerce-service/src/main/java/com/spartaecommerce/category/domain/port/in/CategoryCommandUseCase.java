@@ -7,7 +7,7 @@ public interface CategoryCommandUseCase {
 
     Long register(CategoryRegisterCommand registerCommand);
 
-    void update(Long categoryId, CategoryUpdateCommand updateCommand);
+    void update(CategoryUpdateCommand updateCommand);
 
     void delete(Long categoryId);
 }

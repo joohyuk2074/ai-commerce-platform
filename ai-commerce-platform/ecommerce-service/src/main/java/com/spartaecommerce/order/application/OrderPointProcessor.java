@@ -73,6 +73,10 @@ public class OrderPointProcessor {
     }
 
     public Money earnPoints(Long userId, BigDecimal earnedPoints) {
+        if (earnedPoints == null || earnedPoints.compareTo(BigDecimal.ZERO) <= 0) {
+            return Money.zero();
+        }
+
         PointWallet wallet = loadPointWalletPort.getByUserId(userId);
         Money earnedPointsMoney = Money.from(earnedPoints);
         Money maxBalance = Money.from(pointsProperties.getMaxBalance());

@@ -31,8 +31,7 @@ public class OrderCreateServiceTest extends OrderServiceTest {
             int initialStock = 50;
             int orderQuantity = 5;
 
-            User user = createUser();
-            Long userId = userRepository.save(user);
+            Long userId = createUserWithWallet();
 
             Product product = createProduct("클린코드", initialStock);
             Long productId = productRepository.save(product);
@@ -92,8 +91,7 @@ public class OrderCreateServiceTest extends OrderServiceTest {
             int initialStock = 3;
             int requestedQuantity = 5;
 
-            User user = createUser();
-            Long userId = userRepository.save(user);
+            Long userId = createUserWithWallet();
 
             Product product = createProduct("클린코드", initialStock);
             Long productId = productRepository.save(product);
@@ -120,10 +118,8 @@ public class OrderCreateServiceTest extends OrderServiceTest {
             // given
             int initialStock = 100;
 
-            User user1 = createUser();
-            User user2 = createUser();
-            Long user1Id = userRepository.save(user1);
-            Long user2Id = userRepository.save(user2);
+            Long user1Id = createUserWithWallet();
+            Long user2Id = createUserWithWallet();
 
             Product product = createProduct("클린코드", initialStock);
             Long productId = productRepository.save(product);

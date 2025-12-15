@@ -106,7 +106,7 @@ class CouponDiscountCalculatorTest {
         // given
         Coupon coupon = Coupon.createNew(
             "3000원 할인 쿠폰",
-            DiscountValue.DiscountType.PERCENT,
+            DiscountValue.DiscountType.FIXED,
             BigDecimal.valueOf(3000),
             Money.zero(),
             null,
@@ -132,7 +132,7 @@ class CouponDiscountCalculatorTest {
         // given
         Coupon coupon = Coupon.createNew(
             "10000원 할인 쿠폰",
-            DiscountValue.DiscountType.PERCENT,
+            DiscountValue.DiscountType.FIXED,
             BigDecimal.valueOf(10000),
             Money.zero(),
             null,

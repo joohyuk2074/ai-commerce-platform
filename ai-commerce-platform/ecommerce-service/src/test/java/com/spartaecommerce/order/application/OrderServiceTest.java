@@ -69,7 +69,7 @@ class OrderServiceTest {
         pointsProperties.setMaxBalance(BigDecimal.valueOf(1000000L));
 
         // OrderItemProcessor 생성
-        OrderItemProcessor orderItemProcessor = new OrderItemProcessor(productRepository, productRepository, categoryRepository);
+        OrderItemProcessor orderItemProcessor = new OrderItemProcessor(productRepository, categoryRepository);
 
         // OrderPointProcessor 생성
         PointCalculator pointCalculator = new PointCalculator();
@@ -89,6 +89,7 @@ class OrderServiceTest {
             userRepository,
             orderRepository,
             orderRepository,
+            productRepository,
             orderItemProcessor,
             orderPointProcessor,
             orderHistoryRecorder
@@ -112,6 +113,13 @@ class OrderServiceTest {
             .build();
     }
 
+    protected Long createUserWithWallet() {
+        User user = createUser();
+        Long userId = userRepository.save(user);
+        pointWalletRepository.save(com.spartaecommerce.pointwallet.domain.entity.PointWallet.createNew(userId));
+        return userId;
+    }
+
     protected Product createProduct(String name, int stock) {
         return Product.builder()
             .name(name)
@@ -132,6 +140,8 @@ class OrderServiceTest {
             .userId(userId)
             .orderItems(List.of(orderItem))
             .status(OrderStatus.PENDING)
+            .usedPointAmount(Money.zero())
+            .earnedPointAmount(Money.zero())
             .build();
     }
 

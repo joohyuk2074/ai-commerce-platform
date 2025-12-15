@@ -13,6 +13,7 @@ import com.spartaecommerce.order.domain.port.in.OrderCommandUseCase;
 import com.spartaecommerce.order.domain.port.out.LoadOrderPort;
 import com.spartaecommerce.order.domain.port.out.SaveOrderPort;
 import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.product.domain.port.out.SaveProductPort;
 import com.spartaecommerce.user.domain.entity.User;
 import com.spartaecommerce.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class OrderCommandService implements OrderCommandUseCase {
     private final UserRepository userRepository;
     private final SaveOrderPort saveOrderPort;
     private final LoadOrderPort loadOrderPort;
+    private final SaveProductPort saveProductPort;
     private final OrderItemProcessor orderItemProcessor;
     private final OrderPointProcessor orderPointProcessor;
     private final OrderHistoryRecorder orderHistoryRecorder;
@@ -79,7 +81,7 @@ public class OrderCommandService implements OrderCommandUseCase {
         order.setPointAmounts(usedPoints, earnedPointsMoney);
 
         Long createdOrderId = saveOrderPort.save(order);
-        orderItemProcessor.saveProducts(products);
+        saveProductPort.saveAll(products);
 
         // 포인트 트랜잭션 기록
         if (!usedPoints.isZero()) {
@@ -168,7 +170,7 @@ public class OrderCommandService implements OrderCommandUseCase {
 
         // 6. Order, Product 저장
         saveOrderPort.save(order);
-        orderItemProcessor.saveProducts(products);
+        saveProductPort.saveAll(products);
 
         // 7. 취소 히스토리 기록
         orderHistoryRecorder.recordCancellation(orderId, previousStatus);

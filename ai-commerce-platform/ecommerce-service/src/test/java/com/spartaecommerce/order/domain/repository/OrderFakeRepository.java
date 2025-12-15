@@ -6,6 +6,7 @@ import com.spartaecommerce.order.domain.entity.Order;
 import com.spartaecommerce.order.domain.entity.OrderItem;
 import com.spartaecommerce.order.domain.entity.OrderStatus;
 import com.spartaecommerce.order.application.dto.query.OrderSearchQuery;
+import com.spartaecommerce.order.domain.port.out.LoadOrderPort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -17,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
-public class OrderFakeRepository implements OrderRepository {
+public class OrderFakeRepository implements OrderRepository, LoadOrderPort {
 
     private final Map<Long, Order> orders = new ConcurrentHashMap<>();
     private final AtomicLong idGenerator = new AtomicLong(1L);

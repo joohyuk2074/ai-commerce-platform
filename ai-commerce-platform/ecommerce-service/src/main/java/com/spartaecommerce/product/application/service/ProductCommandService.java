@@ -4,6 +4,7 @@ import com.spartaecommerce.category.domain.port.out.LoadCategoryPort;
 import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;
 import com.spartaecommerce.order.domain.entity.OrderStatus;
+import com.spartaecommerce.order.domain.port.out.LoadOrderPort;
 import com.spartaecommerce.order.domain.repository.OrderRepository;
 import com.spartaecommerce.product.application.dto.command.ProductRegisterCommand;
 import com.spartaecommerce.product.application.dto.command.ProductUpdateCommand;
@@ -23,7 +24,7 @@ public class ProductCommandService implements ProductCommandUseCase {
     private final LoadProductPort loadProductPort;
     private final SaveProductPort saveProductPort;
     private final LoadCategoryPort loadCategoryPort;
-    private final OrderRepository orderRepository;              // FIXME: LoadOrderPort로 변경
+    private final LoadOrderPort loadOrderPort;
 
     @Override
     public Long register(ProductRegisterCommand registerCommand) {
@@ -99,7 +100,7 @@ public class ProductCommandService implements ProductCommandUseCase {
     }
 
     private void validateNotInCompletedOrders(Long productId) {
-        if (orderRepository.existsByProductInOrdersWithStatus(productId, OrderStatus.COMPLETED)) {
+        if (loadOrderPort.existsByProductInOrdersWithStatus(productId, OrderStatus.COMPLETED)) {
             throw new BusinessException(
                 ErrorCode.INVALID_REQUEST,
                 "Cannot delete product. It is associated with one or more completed orders. productId: " + productId

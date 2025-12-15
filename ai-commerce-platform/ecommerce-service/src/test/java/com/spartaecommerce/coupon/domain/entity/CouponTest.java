@@ -30,7 +30,7 @@ class CouponTest {
         // when
         Coupon coupon = Coupon.createNew(
             couponName,
-            DiscountValue.DiscountType.FIXED,
+            DiscountValue.DiscountType.PERCENT,
             BigDecimal.valueOf(10),
             minOrderAmount,
             maxDiscountAmount,
