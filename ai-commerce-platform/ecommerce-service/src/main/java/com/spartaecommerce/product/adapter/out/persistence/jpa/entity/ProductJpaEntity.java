@@ -1,6 +1,7 @@
 package com.spartaecommerce.product.adapter.out.persistence.jpa.entity;
 
 import com.spartaecommerce.common.domain.Money;
+import com.spartaecommerce.product.domain.entity.ExternalProductRef;
 import com.spartaecommerce.product.domain.entity.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -20,7 +21,10 @@ import java.time.LocalDateTime;
 @Table(
     name = "product",
     indexes = {
-        @Index(name = "idx_product_category_price_id", columnList = "categoryId, price, productId")
+        @Index(name = "idx_product_search", columnList = "deleted, categoryId, productId")
+    },
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_product_vendor_external_id", columnNames = {"vendor", "externalId"})
     }
 )
 public class ProductJpaEntity {
@@ -45,6 +49,15 @@ public class ProductJpaEntity {
     @Column(nullable = false)
     private Long categoryId;
 
+    @Column(length = 100)
+    private String vendor;
+
+    @Column(length = 100)
+    private String externalId;
+
+    @Column(nullable = false)
+    private boolean isOrderable;
+
     @Column
     private boolean deleted;
 
@@ -57,6 +70,14 @@ public class ProductJpaEntity {
     private LocalDateTime updatedAt;
 
     public static ProductJpaEntity from(Product product) {
+        String vendor = null;
+        String externalId = null;
+
+        if (product.getExternalProductRef() != null) {
+            vendor = product.getExternalProductRef().vendor();
+            externalId = product.getExternalProductRef().externalId();
+        }
+
         return new ProductJpaEntity(
             product.getProductId(),
             product.getName(),
@@ -64,6 +85,9 @@ public class ProductJpaEntity {
             product.getPrice().amount(),
             product.getStock(),
             product.getCategoryId(),
+            vendor,
+            externalId,
+            product.isOrderable(),
             product.isDeleted(),
             product.getCreatedAt(),
             product.getUpdatedAt()
@@ -71,6 +95,11 @@ public class ProductJpaEntity {
     }
 
     public Product toDomain() {
+        ExternalProductRef externalProductRef = null;
+        if (this.vendor != null && this.externalId != null) {
+            externalProductRef = new ExternalProductRef(this.vendor, this.externalId);
+        }
+
         return Product.builder()
             .productId(this.productId)
             .name(this.name)
@@ -78,6 +107,8 @@ public class ProductJpaEntity {
             .price(Money.from(this.price))
             .stock(this.stock)
             .categoryId(this.categoryId)
+            .externalProductRef(externalProductRef)
+            .isOrderable(this.isOrderable)
             .deleted(this.deleted)
             .createdAt(this.createdAt)
             .updatedAt(this.updatedAt)

@@ -1,7 +1,6 @@
 package com.spartaecommerce.product.adapter.out.persistence;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -10,6 +9,7 @@ import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;
 import com.spartaecommerce.product.adapter.out.persistence.jpa.entity.ProductJpaEntity;
 import com.spartaecommerce.product.application.dto.query.ProductSearchQuery;
+import com.spartaecommerce.product.domain.entity.ExternalProductRef;
 import com.spartaecommerce.product.domain.entity.Product;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import lombok.RequiredArgsConstructor;
@@ -118,20 +118,39 @@ public class ProductPersistenceQueryAdapter implements LoadProductPort {
     }
 
     @Override
+    public List<Product> findAllByExternalProductRefs(List<ExternalProductRef> externalProductRefs) {
+        if (externalProductRefs == null || externalProductRefs.isEmpty()) {
+            return List.of();
+        }
+
+        BooleanBuilder builder = new BooleanBuilder();
+        for (ExternalProductRef ref : externalProductRefs) {
+            builder.or(vendorAndExternalIdEquals(ref));
+        }
+
+        List<ProductJpaEntity> entities = queryFactory
+            .selectFrom(productJpaEntity)
+            .where(
+                builder,
+                isNotDeleted()
+            )
+            .fetch();
+
+        return entities.stream()
+            .map(ProductJpaEntity::toDomain)
+            .toList();
+    }
+
+    @Override
     public Page<Product> search(ProductSearchQuery searchQuery) {
         BooleanBuilder conditions = buildSearchConditions(searchQuery);
-
-        OrderSpecifier<?> orderSpecifier = getOrderSpecifier(
-            searchQuery.pageable().sortBy(),
-            searchQuery.pageable().direction()
-        );
 
         Pageable pageable = PageRequest.of(
             searchQuery.pageable().page(),
             searchQuery.pageable().size()
         );
 
-        List<Product> products = fetchProducts(conditions, orderSpecifier, pageable);
+        List<Product> products = fetchProducts(conditions, pageable);
         long total = countProducts(conditions);
 
         return new PageImpl<>(products, pageable, total);
@@ -141,34 +160,20 @@ public class ProductPersistenceQueryAdapter implements LoadProductPort {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(isNotDeleted());
         builder.and(categoryIdEquals(searchQuery.categoryId()));
+        builder.and(isOrderableEquals(searchQuery.isOrderable()));
         builder.and(nameContains(searchQuery.keyword()));
         builder.and(priceInRange(searchQuery.minPrice(), searchQuery.maxPrice()));
         return builder;
     }
 
-    private OrderSpecifier<?> getOrderSpecifier(String sortBy, String direction) {
-        boolean isAsc = "ASC".equalsIgnoreCase(direction);
-
-        return switch (sortBy.toLowerCase()) {
-            case "id", "productId", "product_id" ->
-                isAsc ? productJpaEntity.productId.asc() : productJpaEntity.productId.desc();
-            case "price" -> isAsc ? productJpaEntity.price.asc() : productJpaEntity.price.desc();
-            case "name" -> isAsc ? productJpaEntity.name.asc() : productJpaEntity.name.desc();
-            case "createdAt", "created_at" ->
-                isAsc ? productJpaEntity.createdAt.asc() : productJpaEntity.createdAt.desc();
-            default -> productJpaEntity.createdAt.desc(); // 기본값: 최신순
-        };
-    }
-
     private List<Product> fetchProducts(
         BooleanBuilder conditions,
-        OrderSpecifier<?> orderSpecifier,
         Pageable pageable
     ) {
         List<ProductJpaEntity> productJpaEntities = queryFactory
             .selectFrom(productJpaEntity)
             .where(conditions)
-            .orderBy(orderSpecifier)
+            .orderBy(productJpaEntity.productId.desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();
@@ -204,16 +209,31 @@ public class ProductPersistenceQueryAdapter implements LoadProductPort {
         return productJpaEntity.name.eq(name);
     }
 
+    private BooleanExpression externalIdEquals(String externalId) {
+        if (externalId == null || externalId.isBlank()) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "externalId must not be null or blank");
+        }
+
+        return productJpaEntity.externalId.eq(externalId);
+    }
+
+    private BooleanExpression vendorAndExternalIdEquals(ExternalProductRef externalProductRef) {
+        if (externalProductRef == null) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "externalProductRef must not be null");
+        }
+
+        return productJpaEntity.vendor.eq(externalProductRef.vendor())
+            .and(productJpaEntity.externalId.eq(externalProductRef.externalId()));
+    }
+
     private BooleanExpression isNotDeleted() {
         return productJpaEntity.deleted.eq(false);
     }
 
     private BooleanExpression categoryIdEquals(Long categoryId) {
-        if (categoryId == null) {
-            throw new BusinessException(ErrorCode.INVALID_REQUEST, "categoryId must not be null");
-        }
-
-        return productJpaEntity.categoryId.eq(categoryId);
+        return (categoryId != null)
+            ? productJpaEntity.categoryId.eq(categoryId)
+            : null;
     }
 
     private BooleanExpression nameContains(String keyword) {
@@ -239,5 +259,11 @@ public class ProductPersistenceQueryAdapter implements LoadProductPort {
             return productJpaEntity.price.loe(maxPrice.amount());
         }
         return null;
+    }
+
+    private BooleanExpression isOrderableEquals(Boolean isOrderable) {
+        return (isOrderable != null)
+            ? productJpaEntity.isOrderable.eq(isOrderable)
+            : null;
     }
 }

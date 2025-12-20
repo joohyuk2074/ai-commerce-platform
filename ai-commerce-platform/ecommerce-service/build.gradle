@@ -9,6 +9,7 @@ dependencies {
     // Persistence
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'com.mysql:mysql-connector-j'
+    testRuntimeOnly 'com.h2database:h2'
 
     // QueryDSL JPA 라이브러리
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
@@ -30,6 +31,10 @@ dependencies {
     // Cache - Caffeine
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+
+    // Spring Retry
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework:spring-aspects'
 }
 
 tasks.named('compileJava') {

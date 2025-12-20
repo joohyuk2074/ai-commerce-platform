@@ -24,4 +24,6 @@ public interface LoadCategoryPort {
     List<Category> findAllByParentId(Long parentCategoryId);
 
     List<Category> findAllByCategoryIdIn(Set<Long> categoryIds);
+
+    Category getExternalCategory();
 }

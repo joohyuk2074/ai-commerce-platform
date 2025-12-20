@@ -3,6 +3,7 @@ package com.spartaecommerce.product.domain.port.out;
 import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;
 import com.spartaecommerce.product.application.dto.query.ProductSearchQuery;
+import com.spartaecommerce.product.domain.entity.ExternalProductRef;
 import com.spartaecommerce.product.domain.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,11 +29,13 @@ public class ProductFakeRepository implements LoadProductPort, SaveProductPort {
             long productId = idGenerator.getAndIncrement();
             Product newProduct = Product.builder()
                 .productId(productId)
+                .externalProductRef(product.getExternalProductRef())
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .stock(product.getStock())
                 .categoryId(product.getCategoryId())
+                .isOrderable(product.isOrderable())
                 .deleted(product.isDeleted())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
@@ -42,11 +45,13 @@ public class ProductFakeRepository implements LoadProductPort, SaveProductPort {
         } else {
             Product updatedProduct = Product.builder()
                 .productId(product.getProductId())
+                .externalProductRef(product.getExternalProductRef())
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .stock(product.getStock())
                 .categoryId(product.getCategoryId())
+                .isOrderable(product.isOrderable())
                 .deleted(product.isDeleted())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(LocalDateTime.now())
@@ -105,6 +110,11 @@ public class ProductFakeRepository implements LoadProductPort, SaveProductPort {
             stream = stream.filter(product -> product.getCategoryId().equals(searchQuery.categoryId()));
         }
 
+        // 주문 가능 여부 필터
+        if (searchQuery.isOrderable() != null) {
+            stream = stream.filter(product -> product.isOrderable() == searchQuery.isOrderable());
+        }
+
         // 키워드 필터
         if (searchQuery.keyword() != null && !searchQuery.keyword().isEmpty()) {
             stream = stream.filter(product ->
@@ -150,6 +160,11 @@ public class ProductFakeRepository implements LoadProductPort, SaveProductPort {
             .filter(product -> !product.isDeleted())
             .filter(product -> productIds.contains(product.getProductId()))
             .toList();
+    }
+
+    @Override
+    public List<Product> findAllByExternalProductRefs(List<ExternalProductRef> externalProductRefs) {
+        return List.of();
     }
 
     private Comparator<Product> getComparator(String sortBy, String direction) {

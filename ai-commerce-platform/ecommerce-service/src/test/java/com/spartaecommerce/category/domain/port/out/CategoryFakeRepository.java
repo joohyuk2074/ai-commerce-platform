@@ -100,6 +100,11 @@ public class CategoryFakeRepository implements LoadCategoryPort, SaveCategoryPor
             .toList();
     }
 
+    @Override
+    public Category getExternalCategory() {
+        return null;
+    }
+
     public void clear() {
         repository.clear();
         idGenerator.set(1L);

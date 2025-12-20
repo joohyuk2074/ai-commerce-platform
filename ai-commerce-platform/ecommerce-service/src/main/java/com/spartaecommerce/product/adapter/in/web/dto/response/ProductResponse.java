@@ -11,6 +11,7 @@ public record ProductResponse(
     BigDecimal price,
     Integer stock,
     Long categoryId,
+    boolean isOrderable,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {
@@ -22,6 +23,7 @@ public record ProductResponse(
             productResult.price().amount(),
             productResult.stock(),
             productResult.categoryId(),
+            productResult.isOrderable(),
             productResult.createdAt(),
             productResult.updatedAt()
         );

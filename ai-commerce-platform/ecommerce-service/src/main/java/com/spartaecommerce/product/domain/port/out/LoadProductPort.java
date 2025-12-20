@@ -1,6 +1,7 @@
 package com.spartaecommerce.product.domain.port.out;
 
 import com.spartaecommerce.product.application.dto.query.ProductSearchQuery;
+import com.spartaecommerce.product.domain.entity.ExternalProductRef;
 import com.spartaecommerce.product.domain.entity.Product;
 import org.springframework.data.domain.Page;
 
@@ -25,4 +26,6 @@ public interface LoadProductPort {
     Page<Product> search(ProductSearchQuery searchQuery);
 
     List<Product> findAllByProductIdIn(List<Long> productIds);
+
+    List<Product> findAllByExternalProductRefs(List<ExternalProductRef> externalProductRefs);
 }

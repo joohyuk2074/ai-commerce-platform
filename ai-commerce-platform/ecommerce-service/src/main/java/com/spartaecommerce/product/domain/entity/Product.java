@@ -3,14 +3,12 @@ package com.spartaecommerce.product.domain.entity;
 import com.spartaecommerce.common.domain.Money;
 import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;
-import com.spartaecommerce.product.application.dto.command.ProductUpdateCommand;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Getter
 @Builder
@@ -18,6 +16,8 @@ import java.util.Objects;
 public class Product {
 
     private Long productId;
+
+    private ExternalProductRef externalProductRef;
 
     private String name;
 
@@ -28,6 +28,8 @@ public class Product {
     private Integer stock;
 
     private Long categoryId;
+
+    private boolean isOrderable;
 
     private boolean deleted;
 
@@ -48,6 +50,28 @@ public class Product {
             .price(price)
             .stock(stock)
             .categoryId(categoryId)
+            .isOrderable(stock != null && stock > 0)
+            .deleted(false)
+            .build();
+    }
+
+    public static Product createFromExternal(
+        String vendor,
+        Long externalProductId,
+        String name,
+        String description,
+        Money price,
+        Integer stock,
+        Long categoryId
+    ) {
+        return Product.builder()
+            .externalProductRef(ExternalProductRef.of(vendor, externalProductId))
+            .name(name)
+            .description(description)
+            .price(price)
+            .stock(stock)
+            .categoryId(categoryId)
+            .isOrderable(stock != null && stock > 0)
             .deleted(false)
             .build();
     }
@@ -80,6 +104,7 @@ public class Product {
 
         if (stock != null) {
             this.stock = stock;
+            this.isOrderable = stock > 0;
         }
 
         if (categoryId != null) {
@@ -96,6 +121,7 @@ public class Product {
         }
 
         this.stock -= quantity;
+        this.isOrderable = this.stock > 0;
     }
 
     public void restoreQuantity(Integer quantity) {
@@ -107,6 +133,7 @@ public class Product {
         }
 
         this.stock += quantity;
+        this.isOrderable = this.stock > 0;
     }
 
     public void delete() {

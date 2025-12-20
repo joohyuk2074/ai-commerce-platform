@@ -5,6 +5,7 @@ import com.spartaecommerce.common.domain.CustomPageable;
 
 public record ProductSearchQuery(
     Long categoryId,
+    Boolean isOrderable,
     Money minPrice,
     Money maxPrice,
     String keyword,

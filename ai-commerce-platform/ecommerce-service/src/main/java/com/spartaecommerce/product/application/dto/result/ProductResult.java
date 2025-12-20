@@ -12,6 +12,7 @@ public record ProductResult(
     Money price,
     Integer stock,
     Long categoryId,
+    boolean isOrderable,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {
@@ -24,6 +25,7 @@ public record ProductResult(
             product.getPrice(),
             product.getStock(),
             product.getCategoryId(),
+            product.isOrderable(),
             product.getCreatedAt(),
             product.getUpdatedAt()
         );

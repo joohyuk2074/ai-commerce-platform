@@ -29,7 +29,10 @@ public enum ErrorCode {
     COUPON_ALREADY_ISSUED(409, "COUPON_ALREADY_ISSUED", "This coupon has already been issued to another user."),
 
     // lock
-    LOCK_ACQUISITION_FAILED(409, "LOCK_ACQUISITION_FAILED", "다른 요청 처리 중입니다");
+    LOCK_ACQUISITION_FAILED(409, "LOCK_ACQUISITION_FAILED", "다른 요청 처리 중입니다"),
+
+    // external api
+    EXTERNAL_API_ERROR(500, "EXTERNAL_API_ERROR", "External API call failed.");
 
 
     private final int httpStatus;

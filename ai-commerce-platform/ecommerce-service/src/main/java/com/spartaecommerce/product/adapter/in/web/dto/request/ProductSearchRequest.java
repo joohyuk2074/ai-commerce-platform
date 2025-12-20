@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 
 public record ProductSearchRequest(
     Long categoryId,
+    Boolean isOrderable,
     BigDecimal minPrice,
     BigDecimal maxPrice,
     String keyword,
@@ -24,6 +25,7 @@ public record ProductSearchRequest(
 
         return new ProductSearchQuery(
             categoryId,
+            isOrderable,
             Money.from(minPrice),
             Money.from(maxPrice),
             keyword,

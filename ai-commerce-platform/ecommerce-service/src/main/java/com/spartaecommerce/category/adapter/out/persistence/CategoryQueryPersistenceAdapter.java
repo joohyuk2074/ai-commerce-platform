@@ -45,6 +45,14 @@ public class CategoryQueryPersistenceAdapter implements LoadCategoryPort {
     }
 
     @Override
+    public Category getExternalCategory() {
+        CategoryJpaEntity categoryJpaEntity = categoryJpaRepository.findByName("")
+            .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "default category not found."));
+
+        return categoryJpaEntity.toDomain();
+    }
+
+    @Override
     public boolean existsById(Long categoryId) {
         Integer count = queryFactory
             .selectOne()

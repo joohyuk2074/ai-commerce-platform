@@ -49,3 +49,10 @@ cart:
   storage:
     type: caffeine  # caffeine (로컬 캐시) 또는 redis (분산 캐시)
 
+external:
+  product:
+    api:
+      url: http://localhost:3001/products  # 외부 상품 API URL (실제 URL로 변경 필요)
+      vendor: external-vendor  # 외부 상품 제공 업체 식별자
+      page-size: 50  # 외부 상품 동기화 시 페이지당 아이템 수
+
