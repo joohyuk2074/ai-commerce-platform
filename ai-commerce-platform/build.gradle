@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.8'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'com.epages.restdocs-api-spec' version '0.18.2'
 }
 
 group = 'com.example'
@@ -14,7 +13,6 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
-    apply plugin: 'com.epages.restdocs-api-spec'
 
     java {
         toolchain {
@@ -36,11 +34,6 @@ subprojects {
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
 
-        // RestDocs to Swagger UI
-        implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
-        testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
-        testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.18.2'
-
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'org.springframework.security:spring-security-test'
         testImplementation 'io.projectreactor:reactor-test'
@@ -50,48 +43,6 @@ subprojects {
     tasks.named('test') {
         useJUnitPlatform()
     }
-}
-
-openapi3 {
-    servers = [
-            { url = 'http://localhost:8081' }
-    ]
-    title = 'sparta-ecommerce API'
-    description = 'sparta-ecommerce API 스펙 문서'
-    version = '1.0.0'
-    format = 'yaml'
-}
-
-def appendAuthorizationHeaderToYaml(File swaggerUIFile) {
-    def securitySchemesContent = "  securitySchemes:\n" +
-            "    bearerAuth:\n" +
-            "      type: http\n" +
-            "      scheme: bearer\n" +
-            "      bearerFormat: JWT\n" +
-            "      name: Authorization\n" +
-            "      in: header\n" +
-            "      description: \"Use 'your-access-token' as the value of the Authorization header\"\n" +
-            "security:\n" +
-            "  - bearerAuth: []  # Apply the security scheme here"
-
-    swaggerUIFile.append(securitySchemesContent)
-}
-
-tasks.register("copyOasToSwagger", Copy) {
-    dependsOn("openapi3")
-
-    def openapi3File = layout.buildDirectory.file("api-spec/openapi3.yaml").get().asFile
-
-    doFirst {
-        appendAuthorizationHeaderToYaml(openapi3File)
-    }
-
-    from openapi3File
-    into "src/main/resources/static"
-}
-
-bootJar {
-    dependsOn("copyOasToSwagger")
 }
 
 tasks.named('bootJar') {
