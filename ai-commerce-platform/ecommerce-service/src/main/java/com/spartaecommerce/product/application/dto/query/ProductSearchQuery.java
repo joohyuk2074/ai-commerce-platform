@@ -1,7 +1,9 @@
 package com.spartaecommerce.product.application.dto.query;
 
 import com.spartaecommerce.common.domain.Money;
-import com.spartaecommerce.common.domain.CustomPageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 public record ProductSearchQuery(
     Long categoryId,
@@ -9,11 +11,11 @@ public record ProductSearchQuery(
     Money minPrice,
     Money maxPrice,
     String keyword,
-    CustomPageable pageable
+    Pageable pageable
 ) {
     public ProductSearchQuery {
         if (pageable == null) {
-            pageable = CustomPageable.ofDefaults();
+            pageable = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
         }
     }
 }
