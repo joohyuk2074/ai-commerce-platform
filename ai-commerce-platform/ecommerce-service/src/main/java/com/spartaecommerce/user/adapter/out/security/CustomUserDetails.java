@@ -1,8 +1,10 @@
 package com.spartaecommerce.user.adapter.out.security;
 
+import com.spartaecommerce.user.domain.entity.UserGrade;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -10,7 +12,7 @@ import java.util.Collections;
 
 /**
  * Spring Security UserDetails 구현체
- * 인증된 사용자의 정보를 담고 있으며, userId를 포함합니다.
+ * 인증된 사용자의 정보를 담고 있으며, userId와 권한을 포함합니다.
  */
 @Getter
 @RequiredArgsConstructor
@@ -19,10 +21,13 @@ public class CustomUserDetails implements UserDetails {
     private final Long userId;
     private final String username;
     private final String password;
+    private final UserGrade userGrade;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        return Collections.singletonList(
+            new SimpleGrantedAuthority(userGrade.toRole())
+        );
     }
 
     @Override

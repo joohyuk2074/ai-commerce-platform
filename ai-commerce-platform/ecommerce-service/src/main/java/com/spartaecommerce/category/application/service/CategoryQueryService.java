@@ -8,6 +8,7 @@ import com.spartaecommerce.category.domain.port.out.LoadCategoryPort;
 import com.spartaecommerce.product.domain.entity.Product;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,37 +31,46 @@ public class CategoryQueryService implements CategoryQueryUseCase {
     }
 
     @Override
+    @Cacheable(value = "categoryTree", unless = "#result == null || #result.isEmpty()")
     public List<CategoryTreeNodeResult> getCategoryTree() {
-        List<Category> topLevelCategories = loadCategoryPort.findAllByParentId(null);
+        // 1. 모든 카테고리를 한 번의 쿼리로 조회 (O(1) DB I/O)
+        List<Category> allCategories = loadCategoryPort.findAll();
 
-        List<CategoryTreeNodeResult> topLevelCategoryNodes = topLevelCategories.stream()
-            .map(CategoryTreeNodeResult::from)
-            .toList();
-
-        for (CategoryTreeNodeResult categoryTreeNodeResult : topLevelCategoryNodes) {
-            List<CategoryTreeNodeResult> children = recursiveSearch(categoryTreeNodeResult.getId());
-            categoryTreeNodeResult.addAllChildren(children);
-        }
-
-        return topLevelCategoryNodes;
+        // 2. 메모리에서 트리 구조 구성 (O(N))
+        return buildTreeInMemory(allCategories);
     }
 
-    private List<CategoryTreeNodeResult> recursiveSearch(Long parentCategoryId) {
-        List<Category> categories = loadCategoryPort.findAllByParentId(parentCategoryId);
+    /**
+     * 메모리 내에서 카테고리 트리 구조를 구성
+     * 시간복잡도: O(N), N = 전체 카테고리 수
+     *
+     * @param allCategories 모든 카테고리 목록
+     * @return 최상위 카테고리 노드 리스트
+     */
+    private List<CategoryTreeNodeResult> buildTreeInMemory(List<Category> allCategories) {
+        // 1. 모든 카테고리를 Map으로 변환 (빠른 조회를 위함)
+        java.util.Map<Long, CategoryTreeNodeResult> nodeMap = new java.util.HashMap<>();
 
-        if (categories.isEmpty()) {
-            return Collections.emptyList();
+        for (Category category : allCategories) {
+            nodeMap.put(category.getCategoryId(), CategoryTreeNodeResult.from(category));
         }
 
-        List<CategoryTreeNodeResult> categoryTreeNodeResults = categories.stream()
-            .map(CategoryTreeNodeResult::from)
-            .toList();
+        // 2. 부모-자식 관계 설정 및 최상위 노드 수집
+        List<CategoryTreeNodeResult> rootNodes = new java.util.ArrayList<>();
 
-        for (CategoryTreeNodeResult categoryTreeNodeResult : categoryTreeNodeResults) {
-            List<CategoryTreeNodeResult> children = recursiveSearch(categoryTreeNodeResult.getId());
-            categoryTreeNodeResult.addAllChildren(children);
+        for (CategoryTreeNodeResult node : nodeMap.values()) {
+            if (node.getParentCategoryId() == null) {
+                // 최상위 노드
+                rootNodes.add(node);
+            } else {
+                // 부모에게 자식으로 추가
+                CategoryTreeNodeResult parent = nodeMap.get(node.getParentCategoryId());
+                if (parent != null) {
+                    parent.addAllChildren(Collections.singletonList(node));
+                }
+            }
         }
 
-        return categoryTreeNodeResults;
+        return rootNodes;
     }
 }

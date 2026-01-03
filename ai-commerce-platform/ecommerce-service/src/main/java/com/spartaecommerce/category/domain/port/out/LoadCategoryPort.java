@@ -21,9 +21,13 @@ public interface LoadCategoryPort {
 
     boolean hasActiveChildren(Long categoryId);
 
-    List<Category> findAllByParentId(Long parentCategoryId);
-
     List<Category> findAllByCategoryIdIn(Set<Long> categoryIds);
 
     Category getExternalCategory();
+
+    /**
+     * 모든 카테고리 조회 (삭제되지 않은 것만)
+     * Closure Table 기반 트리 구조 조회 시 사용
+     */
+    List<Category> findAll();
 }

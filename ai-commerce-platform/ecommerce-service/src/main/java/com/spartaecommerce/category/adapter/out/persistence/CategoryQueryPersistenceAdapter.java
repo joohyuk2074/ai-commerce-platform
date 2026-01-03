@@ -2,7 +2,9 @@ package com.spartaecommerce.category.adapter.out.persistence;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.spartaecommerce.category.adapter.out.persistence.jpa.entity.CategoryClosureJpaEntity;
 import com.spartaecommerce.category.adapter.out.persistence.jpa.entity.CategoryJpaEntity;
+import com.spartaecommerce.category.adapter.out.persistence.jpa.repository.CategoryClosureJpaRepository;
 import com.spartaecommerce.category.adapter.out.persistence.jpa.repository.CategoryJpaRepository;
 import com.spartaecommerce.category.domain.entity.Category;
 import com.spartaecommerce.category.domain.port.out.LoadCategoryPort;
@@ -22,6 +24,7 @@ import static com.spartaecommerce.category.adapter.out.persistence.jpa.entity.QC
 public class CategoryQueryPersistenceAdapter implements LoadCategoryPort {
 
     private final CategoryJpaRepository categoryJpaRepository;
+    private final CategoryClosureJpaRepository categoryClosureJpaRepository;
     private final JPAQueryFactory queryFactory;
 
     @Override
@@ -91,22 +94,15 @@ public class CategoryQueryPersistenceAdapter implements LoadCategoryPort {
             )
             .fetchFirst();
 
-        return count != null;
-    }
+        if (count != null) {
+            return true;
+        }
 
-    @Override
-    public List<Category> findAllByParentId(Long categoryId) {
-        List<CategoryJpaEntity> categoryEntities = queryFactory
-            .selectFrom(categoryJpaEntity)
-            .where(
-                isParentIdEquals(categoryId),
-                isNotDeleted()
-            )
-            .fetch();
+        List<CategoryClosureJpaEntity> closureEntities =
+            categoryClosureJpaRepository.findAllByAncestorId(parentId);
 
-        return categoryEntities.stream()
-            .map(CategoryJpaEntity::toDomain)
-            .toList();
+        return closureEntities.stream()
+            .anyMatch(closureEntity -> closureEntity.getDepth() != 0);
     }
 
     @Override
@@ -117,6 +113,19 @@ public class CategoryQueryPersistenceAdapter implements LoadCategoryPort {
                 categoryJpaEntity.categoryId.in(categoryIds),
                 isNotDeleted()
             )
+            .fetch();
+
+        return categoryJpaEntities.stream()
+            .map(CategoryJpaEntity::toDomain)
+            .toList();
+    }
+
+    @Override
+    public List<Category> findAll() {
+        List<CategoryJpaEntity> categoryJpaEntities = queryFactory
+            .selectFrom(categoryJpaEntity)
+            .where(isNotDeleted())
+            .orderBy(categoryJpaEntity.categoryId.asc())
             .fetch();
 
         return categoryJpaEntities.stream()
@@ -142,12 +151,5 @@ public class CategoryQueryPersistenceAdapter implements LoadCategoryPort {
         }
 
         return categoryJpaEntity.name.eq(name);
-    }
-
-    private BooleanExpression isParentIdEquals(Long categoryId) {
-        if (categoryId == null) {
-            return categoryJpaEntity.parent.categoryId.isNull();
-        }
-        return categoryJpaEntity.parent.categoryId.eq(categoryId);
     }
 }

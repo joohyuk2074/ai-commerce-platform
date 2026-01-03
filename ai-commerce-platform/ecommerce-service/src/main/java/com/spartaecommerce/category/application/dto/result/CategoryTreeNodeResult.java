@@ -15,20 +15,20 @@ import java.util.List;
 @AllArgsConstructor
 public class CategoryTreeNodeResult {
 
-    private Long id;
+    private Long categoryId;
     private String name;
     private String description;
-    private Long parentId;
+    private Long parentCategoryId;
 
     @Builder.Default
     private List<CategoryTreeNodeResult> children = new ArrayList<>();
 
     public static CategoryTreeNodeResult from(Category node) {
         return CategoryTreeNodeResult.builder()
-            .id(node.getCategoryId())
+            .categoryId(node.getCategoryId())
             .name(node.getName())
             .description(node.getDescription())
-            .parentId(node.getParentCategoryId())
+            .parentCategoryId(node.getParentCategoryId())
             .build();
     }
 
