@@ -145,6 +145,7 @@ public class ProductPersistenceQueryAdapter implements LoadProductPort {
 
     @Override
     public Page<Product> search(ProductSearchQuery searchQuery) {
+        // TODO: ES 도입 고려
         BooleanBuilder conditions = buildSearchConditions(searchQuery);
         Pageable pageable = searchQuery.pageable();
 
