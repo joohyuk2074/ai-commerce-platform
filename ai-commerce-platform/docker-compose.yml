@@ -1,90 +1,56 @@
-version: '3.8'
-
 services:
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
+  # E-commerce Service Dependencies
+  mysql:
+    image: mysql:8.0
+    container_name: sparta-ecommerce-mysql
     ports:
-      - "11434:11434"
+      - "${MYSQL_PORT}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+      TZ: Asia/Seoul
     volumes:
-      - ollama-data:/root/.ollama
-    restart: unless-stopped
-    networks:
-      - chatbot-network
-    entrypoint: ["/bin/bash", "-c"]
+      - sparta-ecommerce-mysql-volume:/var/lib/mysql
     command:
-      - |
-        ollama serve &
-        sleep 5
-        ollama pull qwen2.5:0.5b
-        ollama pull qwen2.5:3b
-        ollama pull qwen2.5:7b
-        ollama pull nomic-embed-text
-        wait
-
-  postgres:
-    image: pgvector/pgvector:pg16
-    container_name: postgres
-    environment:
-      POSTGRES_DB: teamsparta_vector
-      POSTGRES_USER: rtan
-      POSTGRES_PASSWORD: sparta
-      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./chat-service/src/main/resources/db/init/01_create_vector_extension.sql:/docker-entrypoint-initdb.d/01_create_vector_extension.sql
-      - ./chat-service/src/main/resources/db/migration/V1__init.sql:/docker-entrypoint-initdb.d/V1__init.sql
-    command: postgres -c shared_preload_libraries=vector
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
     networks:
-      - chatbot-network
-
-  chat-service:
-    build:
-      context: .
-      dockerfile: chat-service/Dockerfile
-    container_name: chat-service
-    ports:
-      - "8081:8081"
-    environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - SPRING_AI_OLLAMA_BASE_URL=http://ollama:11434
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/teamsparta_vector
-      - SPRING_DATASOURCE_USERNAME=rtan
-      - SPRING_DATASOURCE_PASSWORD=sparta
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
-      - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=always
-    depends_on:
-      - ollama
-      - postgres
+      - sparta-ecommerce-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
-    networks:
-      - chatbot-network
 
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:main
-    container_name: open-webui
+  redis:
+    image: redis:7-alpine
+    container_name: sparta-ecommerce-redis
     ports:
-      - "3000:8080"
-    environment:
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - OPENAI_API_BASE_URL=http://chat-service:8081/v1
-      - OPENAI_API_KEY=dummy-key
+      - "${REDIS_PORT}:6379"
     volumes:
-      - open-webui-data:/app/backend/data
-    depends_on:
-      - ollama
-      - chat-service
-    restart: unless-stopped
+      - sparta-ecommerce-redis-volume:/data
+    command: redis-server --appendonly yes
     networks:
-      - chatbot-network
+      - sparta-ecommerce-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
 
 volumes:
-  postgres-data:
-  ollama-data:
-  open-webui-data:
+  # E-commerce Service Volumes
+  sparta-ecommerce-mysql-volume:
+    name: sparta-ecommerce-mysql-volume
+  sparta-ecommerce-redis-volume:
+    name: sparta-ecommerce-redis-volume
 
 networks:
-  chatbot-network:
+  sparta-ecommerce-network:
+    name: sparta-ecommerce-network
     driver: bridge
