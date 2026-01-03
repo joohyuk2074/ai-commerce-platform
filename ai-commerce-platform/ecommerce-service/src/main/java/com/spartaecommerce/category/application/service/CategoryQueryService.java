@@ -1,10 +1,14 @@
 package com.spartaecommerce.category.application.service;
 
 import com.spartaecommerce.category.application.dto.query.CategorySearchQuery;
+import com.spartaecommerce.category.application.dto.query.TopSellingProductsQuery;
+import com.spartaecommerce.category.application.dto.result.CategoryProductSalesRankingResult;
 import com.spartaecommerce.category.application.dto.result.CategoryTreeNodeResult;
+import com.spartaecommerce.category.application.dto.result.ProductSalesRankingResult;
 import com.spartaecommerce.category.domain.entity.Category;
 import com.spartaecommerce.category.domain.port.in.CategoryQueryUseCase;
 import com.spartaecommerce.category.domain.port.out.LoadCategoryPort;
+import com.spartaecommerce.category.domain.port.out.LoadProductSalesStatisticsPort;
 import com.spartaecommerce.product.domain.entity.Product;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,6 +29,7 @@ public class CategoryQueryService implements CategoryQueryUseCase {
 
     private final LoadCategoryPort loadCategoryPort;
     private final LoadProductPort loadProductPort;
+    private final LoadProductSalesStatisticsPort loadProductSalesStatisticsPort;
 
     @Override
     public List<Category> search(CategorySearchQuery searchQuery) {
@@ -72,5 +80,52 @@ public class CategoryQueryService implements CategoryQueryUseCase {
         }
 
         return rootNodes;
+    }
+
+    @Override
+    public List<CategoryProductSalesRankingResult> getTopSellingProductsByCategory(TopSellingProductsQuery query) {
+        // 1. Repository에서 기간별 상품 판매량 집계 데이터 조회 (이미 카테고리별로 정렬되어 있음)
+        List<ProductSalesRankingResult> productSales =
+            loadProductSalesStatisticsPort.getProductSalesStatistics(query.startDate(), query.endDate());
+
+        // 2. 카테고리별로 그룹화
+        Map<Long, List<ProductSalesRankingResult>> groupedByCategory = productSales.stream()
+            .collect(Collectors.groupingBy(ProductSalesRankingResult::getCategoryId));
+
+        // 3. 각 카테고리별로 Top N 추출 및 순위 부여
+        return groupedByCategory.entrySet().stream()
+            .map(entry -> buildCategoryRanking(entry.getKey(), entry.getValue(), query.limit()))
+            .sorted((c1, c2) -> Long.compare(c1.getCategoryId(), c2.getCategoryId()))
+            .toList();
+    }
+
+    /**
+     * 카테고리별 Top N 상품 순위 생성
+     * DB에서 이미 판매량 순으로 정렬되어 있으므로 limit만 적용
+     */
+    private CategoryProductSalesRankingResult buildCategoryRanking(
+        Long categoryId,
+        List<ProductSalesRankingResult> products,
+        Integer limit
+    ) {
+        String categoryName = products.isEmpty() ? "" : products.getFirst().getCategoryName();
+
+        AtomicInteger rankCounter = new AtomicInteger(1);
+        List<CategoryProductSalesRankingResult.ProductRankInfo> topProducts = products.stream()
+            .limit(limit)  // DB에서 이미 정렬되어 있으므로 limit만 적용
+            .map(product -> CategoryProductSalesRankingResult.ProductRankInfo.builder()
+                .rank(rankCounter.getAndIncrement())
+                .productId(product.getProductId())
+                .productName(product.getProductName())
+                .totalSalesQuantity(product.getTotalSalesQuantity())
+                .build()
+            )
+            .toList();
+
+        return CategoryProductSalesRankingResult.builder()
+            .categoryId(categoryId)
+            .categoryName(categoryName)
+            .topProducts(topProducts)
+            .build();
     }
 }

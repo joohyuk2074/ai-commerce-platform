@@ -24,12 +24,12 @@ import java.util.List;
     indexes = {
         // 1) 유저별 주문 조회 + 기간/정렬 (가장 자주 씀)
         @Index(name = "idx_orders_user_created", columnList = "user_id, created_at"),
-//
-//        // 2) 유저 + 상태 + 기간 조회 (상태 필터가 자주 붙으면 효과 큼)
-//        @Index(name = "idx_orders_user_status_created", columnList = "user_id, status, created_at"),
 
-        // 3) 상태별 조회/집계 또는 exists 서브쿼리 최적화 보조
-        @Index(name = "idx_orders_status_order", columnList = "status, order_id")
+        // 2) 상태별 조회/집계 또는 exists 서브쿼리 최적화 보조
+        @Index(name = "idx_orders_status_order", columnList = "status, order_id"),
+
+        // 3) 판매 통계 조회 최적화 (상태 + 기간별 필터링)
+        @Index(name = "idx_orders_status_created", columnList = "status, created_at")
     }
 )
 public class OrderJpaEntity {

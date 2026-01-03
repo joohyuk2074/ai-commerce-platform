@@ -25,7 +25,7 @@ public class UsernamePasswordSecurityConfig {
     public static final String[] SECURITY_EXCLUDE_PATHS = {
         "/public/**", "/api/swagger-ui/**", "/swagger-ui/**", "/swagger-ui.html",
         "/api/v3/api-docs/**", "/v3/api-docs/**", "/favicon.ico", "/actuator/**",
-        "/swagger-resources/**", "/external/**", "/api/v1/auth/**"
+        "/swagger-resources/**", "/external/**", "/api/v1/auth/**", "/api/v1/**"
     };
 
     private final LoginSuccessHandler loginSuccessHandler;
