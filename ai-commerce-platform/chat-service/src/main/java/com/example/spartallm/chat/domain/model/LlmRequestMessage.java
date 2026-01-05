@@ -17,6 +17,13 @@ public record LlmRequestMessage(
         Integer maxTokens
     ) {
         ChatOptions chatOptions = ChatOptions.of(temperature, maxTokens);
-        return new LlmRequestMessage(requestId, modelName, systemPrompt, userMessage, null, chatOptions);
+        return new LlmRequestMessage(
+            requestId,
+            modelName,
+            systemPrompt,
+            userMessage,
+            null,
+            chatOptions
+        );
     }
 }

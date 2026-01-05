@@ -2,21 +2,57 @@ server:
   port: 8081
 
 spring:
+  application:
+    name: sparta-llm
   config:
     import: optional:file:.env[.properties]
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/teamsparta_vector
+    username: rtan
+    password: sparta
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
   ai:
+    vectorstore:
+      pgvector:
+        initialize-schema: false
+        dimensions: 768  # nomic-embed-text 차원
+        distance-type: cosine  # COSINE_DISTANCE → cosine
+        index-type: hnsw
     anthropic:
       api-key: ${ANTHROPIC_API_KEY}
       chat:
         options:
-          model: claude-sonnet-4-5-20250929  # or claude-opus-4.1
+          model: claude-sonnet-4-5-20250929
           temperature: 0.7
           max-tokens: 4096
     ollama:
-      base-url: http://localhost:11434  # OLLAMA 서버 주소*
+      base-url: http://localhost:11434
+      embedding:
+        options:
+          model: nomic-embed-text  # 임베딩 전용 모델
       chat:
         options:
-          model: qwen2.5:3b              # 사용할 모델*
-          temperature: 0.7               # 창의성 (0.0 ~ 1.0)
-          num-predict: 1000              # 최대 생성 토큰 수# 로깅 설정 (선택사항)
+          model: qwen2.5:3b
+          temperature: 0.7
+          num-predict: 1000
           keep-alive: 5m
+  restclient:
+    connect-timeout: 60s
+    read-timeout: 300s  # 임베딩 요청은 시간이 오래 걸릴 수 있음 (배치 처리를 고려하여 5분으로 설정)
+  flyway:
+    enabled: false
+#    baseline-on-migrate: true
+#    baseline-version: 0
+
+openwebui:
+  base-url: http://localhost:8080
+  api-key: ${OPENWEBUI_API_KEY:}

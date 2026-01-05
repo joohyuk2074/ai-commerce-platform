@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - chatbot-network
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        ollama serve &
+        sleep 5
+        ollama pull qwen2.5:0.5b
+        ollama pull qwen2.5:3b
+        ollama pull qwen2.5:7b
+        ollama pull nomic-embed-text
+        wait
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: postgres
+    environment:
+      POSTGRES_DB: teamsparta_vector
+      POSTGRES_USER: rtan
+      POSTGRES_PASSWORD: sparta
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./chat-service/src/main/resources/db/init/01_create_vector_extension.sql:/docker-entrypoint-initdb.d/01_create_vector_extension.sql
+      - ./chat-service/src/main/resources/db/migration/V1__init.sql:/docker-entrypoint-initdb.d/V1__init.sql
+    command: postgres -c shared_preload_libraries=vector
+    networks:
+      - chatbot-network
+
+  chat-service:
+    build:
+      context: .
+      dockerfile: chat-service/Dockerfile
+    container_name: chat-service
+    ports:
+      - "8081:8081"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - SPRING_AI_OLLAMA_BASE_URL=http://ollama:11434
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/teamsparta_vector
+      - SPRING_DATASOURCE_USERNAME=rtan
+      - SPRING_DATASOURCE_PASSWORD=sparta
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=always
+    depends_on:
+      - ollama
+      - postgres
+    restart: unless-stopped
+    networks:
+      - chatbot-network
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    ports:
+      - "3000:8080"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OPENAI_API_BASE_URL=http://chat-service:8081/v1
+      - OPENAI_API_KEY=dummy-key
+    volumes:
+      - open-webui-data:/app/backend/data
+    depends_on:
+      - ollama
+      - chat-service
+    restart: unless-stopped
+    networks:
+      - chatbot-network
+
+volumes:
+  postgres-data:
+  ollama-data:
+  open-webui-data:
+
+networks:
+  chatbot-network:
+    driver: bridge
