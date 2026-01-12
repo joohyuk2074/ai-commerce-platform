@@ -31,14 +31,14 @@ spring:
             # ============================================
             # Authentication & User Management Routes
             # ============================================
-            # Public: 회원가입, 로그인
+            # Public: 회원가입, 로그인 (auth-service로 라우팅)
             - id: auth-public
-              uri: http://localhost:8082
+              uri: http://localhost:8083
               predicates:
                 - Path=/api/v1/auth/**
               metadata:
                 access-level: public
-                description: "Authentication endpoints (signup, login)"
+                description: "Authentication endpoints (signup, login, token refresh)"
 
             # Authenticated: 사용자 정보 조회/수정/삭제
             - id: users
@@ -143,13 +143,20 @@ management:
 
 # Authentication Configuration
 auth:
-  # 인증 방식 선택: session (현재) 또는 jwt (향후)
-  strategy: session
+  # 인증 방식 선택: session 또는 jwt
+  strategy: jwt
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-for-jwt-signing-must-be-at-least-256-bits-long}
+  issuer: ai-commerce-platform
 
 # Backend Services Configuration
 services:
   ecommerce:
     url: http://localhost:8082
+  auth:
+    url: http://localhost:8083
 
 # Logging
 logging:

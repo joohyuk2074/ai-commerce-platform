@@ -1,0 +1,28 @@
+plugins {
+    id 'java-library'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    // Spring Boot Starter (필수 공통 의존성만)
+    api 'org.springframework.boot:spring-boot-starter-web'
+    api 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Spring Data (페이징 등)
+    api 'org.springframework.data:spring-data-commons'
+}
+
+// 라이브러리 모듈이므로 bootJar 비활성화
+tasks.named('bootJar') {
+    enabled = false
+}
+
+// jar 활성화
+tasks.named('jar') {
+    enabled = true
+}
