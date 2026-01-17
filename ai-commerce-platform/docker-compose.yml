@@ -20,7 +20,7 @@ services:
     networks:
       - sparta-ecommerce-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -37,7 +37,7 @@ services:
     networks:
       - sparta-ecommerce-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -49,6 +49,7 @@ services:
     container_name: sparta-ecommerce-kafka
     ports:
       - "9092:9092"
+      - "9094:9094"
       - "9093:9093"
     environment:
       # KRaft 설정
@@ -57,11 +58,11 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
 
-      # 리스너 설정
-      KAFKA_LISTENERS: PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093,PLAINTEXT_HOST://0.0.0.0:9094
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9094
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      # 리스너 설정 (내부: kafka:9092, 외부: localhost:9094)
+      KAFKA_LISTENERS: PLAINTEXT_INTERNAL://0.0.0.0:9092,PLAINTEXT_EXTERNAL://0.0.0.0:9094,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_INTERNAL://kafka:9092,PLAINTEXT_EXTERNAL://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
 
       # 클러스터 설정
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
@@ -78,7 +79,7 @@ services:
     networks:
       - sparta-ecommerce-network
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092" ]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -101,11 +102,31 @@ services:
     networks:
       - sparta-ecommerce-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 5
     restart: unless-stopped
+
+  es-init:
+    image: alpine:3.19
+    container_name: sparta-ecommerce-es-init
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - ./logstash/templates:/templates:ro
+      - ./logstash/scripts:/scripts:ro
+    environment:
+      - ELASTICSEARCH_HOST=elasticsearch:9200
+    networks:
+      - sparta-ecommerce-network
+    command: >
+      sh -c "
+        apk add --no-cache curl jq bash &&
+        bash /scripts/init-templates.sh
+      "
+    restart: "no"
 
   logstash:
     image: docker.elastic.co/logstash/logstash:8.11.0
@@ -137,11 +158,25 @@ services:
     networks:
       - sparta-ecommerce-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 5
     restart: unless-stopped
+
+  kafka-ui:
+    image: redpandadata/console:latest
+    container_name: sparta-ecommerce-kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8088:8080"
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+    networks:
+      - sparta-ecommerce-network
+    restart: unless-stopped
+
 
 volumes:
   # E-commerce Service Volumes

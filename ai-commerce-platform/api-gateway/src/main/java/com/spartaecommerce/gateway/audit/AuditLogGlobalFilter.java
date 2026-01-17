@@ -21,6 +21,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.spartaecommerce.gateway.filter.auth.strategy.PassportAuthenticationStrategy.PASSPORT_ATTRIBUTE_KEY;
 import static org.springframework.http.HttpMethod.*;
 
 @Slf4j
@@ -64,7 +65,7 @@ public class AuditLogGlobalFilter implements GlobalFilter, Ordered {
         long responseTime = System.currentTimeMillis() - startTime;
 
         // Passport에서 사용자 정보 추출
-        Passport passport = exchange.getAttribute(PassportAuthenticationStrategy.PASSPORT_ATTRIBUTE_KEY);
+        Passport passport = exchange.getAttribute(PASSPORT_ATTRIBUTE_KEY);
 
         // 경로에서 service와 resource 추출
         String path = request.getPath().value();

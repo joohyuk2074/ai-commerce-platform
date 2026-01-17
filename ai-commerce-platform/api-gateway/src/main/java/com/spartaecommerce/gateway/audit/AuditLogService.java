@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class AuditLogService {
 
-    private static final String AUDIT_LOG_TOPIC = "audit-logs";
+    private static final String AUDIT_LOG_TOPIC = "ecommerce.audit.user-activity";
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;

@@ -1,0 +1,60 @@
+{
+  "description": "사용자 활동 로그 기반 인기 상품 Top 10 조회 (상품 상세 조회 횟수)",
+  "index": "audit-user-activity-*",
+  "query": {
+    "size": 0,
+    "query": {
+      "bool": {
+        "must": [
+          {
+            "term": {
+              "resource": "products"
+            }
+          },
+          {
+            "term": {
+              "method": "GET"
+            }
+          },
+          {
+            "term": {
+              "status_category": "success"
+            }
+          },
+          {
+            "regexp": {
+              "path.keyword": ".*/products/[0-9]+"
+            }
+          }
+        ]
+      }
+    },
+    "aggs": {
+      "popular_products": {
+        "terms": {
+          "script": {
+            "source": "def m = /\\/products\\/(\\d+)/.matcher(doc['path.keyword'].value); if (m.find()) { return m.group(1) } else { return null }",
+            "lang": "painless"
+          },
+          "size": 10,
+          "order": {
+            "_count": "desc"
+          }
+        },
+        "aggs": {
+          "unique_users": {
+            "cardinality": {
+              "field": "userId"
+            }
+          },
+          "avg_response_time": {
+            "avg": {
+              "field": "responseTime"
+            }
+          }
+        }
+      }
+    }
+  },
+  "example_curl": "curl -X POST \"http://localhost:9200/audit-user-activity-*/_search?pretty\" -H 'Content-Type: application/json' -d @05-popular-products-by-user-activity.json"
+}

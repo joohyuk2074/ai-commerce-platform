@@ -1,0 +1,75 @@
+{
+  "description": "실시간 인기 상품 (최근 1시간) Top 10 조회",
+  "index": "event-order-*",
+  "query": {
+    "size": 0,
+    "query": {
+      "bool": {
+        "must": [
+          {
+            "term": {
+              "eventType": "ORDER_CREATED"
+            }
+          },
+          {
+            "range": {
+              "@timestamp": {
+                "gte": "now-1h",
+                "lte": "now"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "aggs": {
+      "popular_products": {
+        "nested": {
+          "path": "items"
+        },
+        "aggs": {
+          "by_product": {
+            "terms": {
+              "field": "items.productId",
+              "size": 10,
+              "order": {
+                "_count": "desc"
+              }
+            },
+            "aggs": {
+              "product_info": {
+                "top_hits": {
+                  "size": 1,
+                  "_source": ["items.productName", "items.categoryName", "items.price"],
+                  "sort": [
+                    {
+                      "@timestamp": {
+                        "order": "desc"
+                      }
+                    }
+                  ]
+                }
+              },
+              "total_quantity": {
+                "sum": {
+                  "field": "items.quantity"
+                }
+              },
+              "unique_buyers": {
+                "reverse_nested": {},
+                "aggs": {
+                  "buyer_count": {
+                    "cardinality": {
+                      "field": "userId"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "example_curl": "curl -X POST \"http://localhost:9200/event-order-*/_search?pretty\" -H 'Content-Type: application/json' -d @06-real-time-popular-products.json"
+}

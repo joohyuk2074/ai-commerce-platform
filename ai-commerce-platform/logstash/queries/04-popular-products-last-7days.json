@@ -1,0 +1,101 @@
+{
+  "description": "최근 7일간 인기 상품 Top 10 조회",
+  "index": "event-order-*",
+  "query": {
+    "size": 0,
+    "query": {
+      "bool": {
+        "must": [
+          {
+            "term": {
+              "eventType": "ORDER_CREATED"
+            }
+          },
+          {
+            "term": {
+              "orderStatus": "COMPLETED"
+            }
+          },
+          {
+            "range": {
+              "@timestamp": {
+                "gte": "now-7d/d",
+                "lte": "now/d"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "aggs": {
+      "popular_products": {
+        "nested": {
+          "path": "items"
+        },
+        "aggs": {
+          "by_product": {
+            "terms": {
+              "field": "items.productId",
+              "size": 10,
+              "order": {
+                "total_quantity": "desc"
+              }
+            },
+            "aggs": {
+              "product_name": {
+                "top_hits": {
+                  "size": 1,
+                  "_source": ["items.productName", "items.categoryName"],
+                  "sort": [
+                    {
+                      "@timestamp": {
+                        "order": "desc"
+                      }
+                    }
+                  ]
+                }
+              },
+              "total_quantity": {
+                "sum": {
+                  "field": "items.quantity"
+                }
+              },
+              "total_revenue": {
+                "sum": {
+                  "field": "items.subtotal"
+                }
+              },
+              "daily_trend": {
+                "reverse_nested": {},
+                "aggs": {
+                  "sales_by_day": {
+                    "date_histogram": {
+                      "field": "@timestamp",
+                      "calendar_interval": "day",
+                      "format": "yyyy-MM-dd"
+                    },
+                    "aggs": {
+                      "back_to_items": {
+                        "nested": {
+                          "path": "items"
+                        },
+                        "aggs": {
+                          "daily_quantity": {
+                            "sum": {
+                              "field": "items.quantity"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "example_curl": "curl -X POST \"http://localhost:9200/event-order-*/_search?pretty\" -H 'Content-Type: application/json' -d @04-popular-products-last-7days.json"
+}

@@ -1,0 +1,70 @@
+{
+  "description": "상품별 매출액 Top 10 조회",
+  "index": "event-order-*",
+  "query": {
+    "size": 0,
+    "query": {
+      "bool": {
+        "must": [
+          {
+            "term": {
+              "eventType": "ORDER_CREATED"
+            }
+          },
+          {
+            "term": {
+              "orderStatus": "COMPLETED"
+            }
+          }
+        ]
+      }
+    },
+    "aggs": {
+      "popular_products": {
+        "nested": {
+          "path": "items"
+        },
+        "aggs": {
+          "by_product": {
+            "terms": {
+              "field": "items.productId",
+              "size": 10,
+              "order": {
+                "total_revenue": "desc"
+              }
+            },
+            "aggs": {
+              "product_name": {
+                "top_hits": {
+                  "size": 1,
+                  "_source": ["items.productName"],
+                  "sort": [
+                    {
+                      "@timestamp": {
+                        "order": "desc"
+                      }
+                    }
+                  ]
+                }
+              },
+              "total_revenue": {
+                "sum": {
+                  "field": "items.subtotal"
+                }
+              },
+              "total_quantity": {
+                "sum": {
+                  "field": "items.quantity"
+                }
+              },
+              "order_count": {
+                "reverse_nested": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "example_curl": "curl -X POST \"http://localhost:9200/event-order-*/_search?pretty\" -H 'Content-Type: application/json' -d @02-popular-products-by-revenue.json"
+}

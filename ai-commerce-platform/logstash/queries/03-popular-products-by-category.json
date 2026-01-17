@@ -1,0 +1,75 @@
+{
+  "description": "카테고리별 인기 상품 Top 5 조회",
+  "index": "event-order-*",
+  "query": {
+    "size": 0,
+    "query": {
+      "bool": {
+        "must": [
+          {
+            "term": {
+              "eventType": "ORDER_CREATED"
+            }
+          },
+          {
+            "term": {
+              "orderStatus": "COMPLETED"
+            }
+          }
+        ]
+      }
+    },
+    "aggs": {
+      "by_category": {
+        "nested": {
+          "path": "items"
+        },
+        "aggs": {
+          "categories": {
+            "terms": {
+              "field": "items.categoryName",
+              "size": 20
+            },
+            "aggs": {
+              "top_products": {
+                "terms": {
+                  "field": "items.productId",
+                  "size": 5,
+                  "order": {
+                    "total_quantity": "desc"
+                  }
+                },
+                "aggs": {
+                  "product_name": {
+                    "top_hits": {
+                      "size": 1,
+                      "_source": ["items.productName"],
+                      "sort": [
+                        {
+                          "@timestamp": {
+                            "order": "desc"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "total_quantity": {
+                    "sum": {
+                      "field": "items.quantity"
+                    }
+                  },
+                  "total_revenue": {
+                    "sum": {
+                      "field": "items.subtotal"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "example_curl": "curl -X POST \"http://localhost:9200/event-order-*/_search?pretty\" -H 'Content-Type: application/json' -d @03-popular-products-by-category.json"
+}
