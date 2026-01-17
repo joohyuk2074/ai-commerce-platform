@@ -9,6 +9,7 @@ import com.spartaecommerce.coupon.application.dto.result.CouponResult;
 import com.spartaecommerce.coupon.application.dto.result.MaxDiscountResult;
 import com.spartaecommerce.coupon.domain.port.in.CouponQueryUseCase;
 import com.spartaecommerce.coupon.domain.port.in.GetMaxDiscountForProductUseCase;
+import com.spartaecommerce.util.PageResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +45,7 @@ public class CouponQueryController {
         Page<CouponResult> resultPage = couponQueryUseCase.search(isActive, pageable);
         Page<CouponResponse> responsePage = resultPage.map(CouponResponse::from);
 
-        PageResponse<CouponResponse> pageResponse = PageResponse.of(responsePage);
+        PageResponse<CouponResponse> pageResponse = PageResponseMapper.of(responsePage);
 
         return ResponseEntity.ok(CommonResponse.success(pageResponse));
     }

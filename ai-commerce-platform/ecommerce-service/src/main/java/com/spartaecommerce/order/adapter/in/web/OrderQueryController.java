@@ -7,6 +7,7 @@ import com.spartaecommerce.order.adapter.in.web.dto.response.OrderResponse;
 import com.spartaecommerce.order.application.dto.query.OrderSearchQuery;
 import com.spartaecommerce.order.application.dto.result.OrderResult;
 import com.spartaecommerce.order.domain.port.in.OrderQueryUseCase;
+import com.spartaecommerce.util.PageResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ public class OrderQueryController {
         Page<OrderResult> orderInfoPage = orderQueryUseCase.search(searchQuery);
         Page<OrderResponse> orderResponse = orderInfoPage.map(OrderResponse::from);
 
-        PageResponse<OrderResponse> pageResponse = PageResponse.of(orderResponse);
+        PageResponse<OrderResponse> pageResponse = PageResponseMapper.of(orderResponse);
 
         return ResponseEntity.ok(CommonResponse.success(pageResponse));
     }

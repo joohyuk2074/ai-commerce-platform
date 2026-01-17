@@ -7,6 +7,7 @@ import com.spartaecommerce.refund.adapter.in.web.dto.response.RefundResponse;
 import com.spartaecommerce.refund.application.dto.query.RefundSearchQuery;
 import com.spartaecommerce.refund.application.dto.result.RefundResult;
 import com.spartaecommerce.refund.domain.port.in.RefundQueryUseCase;
+import com.spartaecommerce.util.PageResponseMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,7 +29,7 @@ public class RefundQueryController {
         Page<RefundResult> refundPage = refundQueryUseCase.search(searchQuery);
         Page<RefundResponse> refundResponse = refundPage.map(RefundResponse::from);
 
-        PageResponse<RefundResponse> refundResponsePageResponse = PageResponse.of(refundResponse);
+        PageResponse<RefundResponse> refundResponsePageResponse = PageResponseMapper.of(refundResponse);
 
         return ResponseEntity.ok(CommonResponse.success(refundResponsePageResponse));
     }

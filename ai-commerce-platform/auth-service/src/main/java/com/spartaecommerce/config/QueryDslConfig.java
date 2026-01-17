@@ -1,4 +1,4 @@
-package com.spartaecommerce.common.config;
+package com.spartaecommerce.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

@@ -3,12 +3,6 @@ package com.spartaecommerce.gateway.filter.auth.strategy;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 인증 결과를 담는 DTO
- *
- * @param authenticated 인증 여부
- * @param userId        사용자 ID
- */
 public record AuthenticationResult(
     boolean authenticated,
     Long userId,

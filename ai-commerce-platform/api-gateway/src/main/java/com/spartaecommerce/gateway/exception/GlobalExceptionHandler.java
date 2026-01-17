@@ -1,6 +1,8 @@
-package com.spartaecommerce.common.exception;
+package com.spartaecommerce.gateway.exception;
 
 import com.spartaecommerce.common.domain.CommonResponse;
+import com.spartaecommerce.common.exception.BusinessException;
+import com.spartaecommerce.common.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

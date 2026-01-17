@@ -7,6 +7,7 @@ import com.spartaecommerce.product.adapter.in.web.dto.response.ProductResponse;
 import com.spartaecommerce.product.application.dto.query.ProductSearchQuery;
 import com.spartaecommerce.product.application.dto.result.ProductResult;
 import com.spartaecommerce.product.domain.port.in.ProductQueryUseCase;
+import com.spartaecommerce.util.PageResponseMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -71,7 +72,7 @@ public class ProductQueryController {
         Page<ProductResult> productPage = productQueryUseCase.search(searchQuery);
         Page<ProductResponse> productResponse = productPage.map(ProductResponse::from);
 
-        PageResponse<ProductResponse> pageResponse = PageResponse.of(productResponse);
+        PageResponse<ProductResponse> pageResponse = PageResponseMapper.of(productResponse);
 
         return ResponseEntity.ok(CommonResponse.success(pageResponse));
     }

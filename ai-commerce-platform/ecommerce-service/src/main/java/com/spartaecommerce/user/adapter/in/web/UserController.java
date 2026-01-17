@@ -14,6 +14,7 @@ import com.spartaecommerce.user.domain.port.in.DeleteUserUseCase;
 import com.spartaecommerce.user.domain.port.in.GetUserUseCase;
 import com.spartaecommerce.user.domain.port.in.SearchUsersUseCase;
 import com.spartaecommerce.user.domain.port.in.UpdateUserUseCase;
+import com.spartaecommerce.util.PageResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +47,7 @@ public class UserController {
         Page<UserResult> userResults = searchUsersUseCase.search(searchQuery);
         Page<UserResponse> productResponse = userResults.map(UserResponse::from);
 
-        PageResponse<UserResponse> data = PageResponse.of(productResponse);
+        PageResponse<UserResponse> data = PageResponseMapper.of(productResponse);
 
         return ResponseEntity.ok(CommonResponse.success(data));
     }
