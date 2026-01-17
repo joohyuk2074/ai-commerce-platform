@@ -3,12 +3,17 @@ ext {
 }
 
 dependencies {
+    implementation project(':common')
+
     implementation 'org.springframework.cloud:spring-cloud-starter-gateway-server-webflux'
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    // Redis (for JWT blacklist and Passport )
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
 }
 
 dependencyManagement {

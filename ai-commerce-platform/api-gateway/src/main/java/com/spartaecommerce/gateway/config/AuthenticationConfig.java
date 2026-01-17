@@ -10,14 +10,10 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * 인증 관련 설정
- * application.yml의 auth.strategy 설정에 따라 인증 방식을 선택
- */
 @Configuration
 public class AuthenticationConfig {
 
-    @Value("${auth.strategy:session}")
+    @Value("${auth.default-strategy:passport}")
     private String authStrategy;
 
     /**

@@ -1,7 +1,11 @@
 package com.spartaecommerce.gateway.filter.auth;
 
+import com.spartaecommerce.common.auth.Passport;
+import com.spartaecommerce.common.auth.PassportSerializer;
 import com.spartaecommerce.gateway.filter.auth.strategy.AuthenticationResult;
 import com.spartaecommerce.gateway.filter.auth.strategy.AuthenticationStrategy;
+import com.spartaecommerce.gateway.filter.auth.strategy.PassportAuthenticationStrategy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.cloud.gateway.route.Route;
@@ -16,6 +20,7 @@ import reactor.core.publisher.Mono;
  * 인증 및 권한 체크를 수행하는 Gateway Filter Factory
  * Route의 metadata에 정의된 access-level을 기반으로 권한을 체크
  */
+@Slf4j
 @Component
 public class AuthenticationGatewayFilterFactory
     extends AbstractGatewayFilterFactory<AuthenticationGatewayFilterFactory.Config> {
@@ -87,9 +92,6 @@ public class AuthenticationGatewayFilterFactory
         };
     }
 
-    /**
-     * 인증 정보를 헤더에 추가
-     */
     private ServerWebExchange addAuthenticationHeaders(ServerWebExchange exchange, AuthenticationResult authResult) {
         if (!authResult.authenticated()) {
             return exchange;
@@ -100,13 +102,23 @@ public class AuthenticationGatewayFilterFactory
                 if (authResult.userId() != null) {
                     builder.header("X-User-Id", String.valueOf(authResult.userId()));
                 }
+
+                // Passport 인증인 경우 X-Passport 헤더 추가
+                Passport passport = exchange.getAttribute(PassportAuthenticationStrategy.PASSPORT_ATTRIBUTE_KEY);
+                if (passport != null) {
+                    try {
+                        String serializedPassport = PassportSerializer.serialize(passport);
+                        builder.header("X-Passport", serializedPassport);
+                        log.debug("Added X-Passport header for user: {} (ID: {})",
+                            passport.username(), passport.userId());
+                    } catch (Exception e) {
+                        log.error("Failed to serialize Passport for header", e);
+                    }
+                }
             })
             .build();
     }
 
-    /**
-     * 401 Unauthorized 응답 반환
-     */
     private Mono<Void> unauthorized(ServerWebExchange exchange) {
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         return exchange.getResponse().setComplete();

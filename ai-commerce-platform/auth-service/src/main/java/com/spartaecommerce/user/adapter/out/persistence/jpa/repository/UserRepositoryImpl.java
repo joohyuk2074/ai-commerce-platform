@@ -3,14 +3,11 @@ package com.spartaecommerce.user.adapter.out.persistence.jpa.repository;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.spartaecommerce.common.exception.BusinessException;
-import com.spartaecommerce.common.exception.ErrorCode;
+import com.spartaecommerce.user.adapter.out.persistence.jpa.entity.UserJpaEntity;
 import com.spartaecommerce.user.application.dto.query.UserSearchQuery;
 import com.spartaecommerce.user.domain.entity.User;
-import com.spartaecommerce.user.domain.repository.UserRepository;
-import com.spartaecommerce.user.adapter.out.persistence.jpa.entity.UserJpaEntity;
+import com.spartaecommerce.user.domain.port.out.SearchUserPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -18,83 +15,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.spartaecommerce.user.adapter.out.persistence.jpa.entity.QUserJpaEntity.userJpaEntity;
 
 
-@Primary
 @Repository
 @RequiredArgsConstructor
-public class UserRepositoryImpl implements UserRepository {
+public class UserRepositoryImpl implements SearchUserPort {
 
-    private final UserJpaRepository userJpaRepository;
     private final JPAQueryFactory queryFactory;
-
-    @Override
-    public Long save(User user) {
-        UserJpaEntity userJpaEntity = UserJpaEntity.from(user);
-        return userJpaRepository.save(userJpaEntity).getUserId();
-    }
-
-    @Override
-    public Optional<User> findById(Long userId) {
-        UserJpaEntity entity = queryFactory
-            .selectFrom(userJpaEntity)
-            .where(
-                idEquals(userId),
-                isNotDeleted()
-            )
-            .fetchOne();
-
-        return Optional.ofNullable(entity)
-            .map(UserJpaEntity::toDomain);
-    }
-
-    @Override
-    public User getById(Long userId) {
-        UserJpaEntity entity = queryFactory
-            .selectFrom(userJpaEntity)
-            .where(
-                idEquals(userId),
-                isNotDeleted()
-            )
-            .fetchOne();
-
-        if (entity == null) {
-            throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "userId: " + userId);
-        }
-
-        return entity.toDomain();
-    }
-
-    @Override
-    public boolean existsById(Long userId) {
-        Integer count = queryFactory
-            .selectOne()
-            .from(userJpaEntity)
-            .where(
-                idEquals(userId),
-                isNotDeleted()
-            )
-            .fetchFirst();
-
-        return count != null;
-    }
-
-    @Override
-    public boolean existsByEmail(String email) {
-        Integer count = queryFactory
-            .selectOne()
-            .from(userJpaEntity)
-            .where(
-                emailEquals(email),
-                isNotDeleted()
-            )
-            .fetchFirst();
-
-        return count != null;
-    }
 
     @Override
     public Page<User> search(UserSearchQuery searchQuery) {

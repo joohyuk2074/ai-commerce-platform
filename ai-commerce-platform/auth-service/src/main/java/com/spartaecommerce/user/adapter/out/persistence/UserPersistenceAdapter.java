@@ -2,15 +2,12 @@ package com.spartaecommerce.user.adapter.out.persistence;
 
 import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;
-import com.spartaecommerce.user.application.dto.query.UserSearchQuery;
+import com.spartaecommerce.user.adapter.out.persistence.jpa.entity.UserJpaEntity;
+import com.spartaecommerce.user.adapter.out.persistence.jpa.repository.UserJpaRepository;
 import com.spartaecommerce.user.domain.entity.User;
 import com.spartaecommerce.user.domain.port.out.LoadUserPort;
 import com.spartaecommerce.user.domain.port.out.SaveUserPort;
-import com.spartaecommerce.user.domain.repository.UserRepository;
-import com.spartaecommerce.user.adapter.out.persistence.jpa.entity.UserJpaEntity;
-import com.spartaecommerce.user.adapter.out.persistence.jpa.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -20,7 +17,23 @@ import java.util.Optional;
 public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
 
     private final UserJpaRepository userJpaRepository;
-    private final UserRepository userRepository;
+
+    @Override
+    public Long save(User user) {
+        UserJpaEntity entity = UserJpaEntity.from(user);
+        UserJpaEntity saved = userJpaRepository.save(entity);
+        return saved.getUserId();
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return userJpaRepository.existsByUsername(username);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userJpaRepository.existsByEmail(email);
+    }
 
     @Override
     public Optional<User> findById(Long userId) {
@@ -58,27 +71,5 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
                 ErrorCode.ENTITY_NOT_FOUND,
                 "User not found: " + username
             ));
-    }
-
-    @Override
-    public boolean existsByUsername(String username) {
-        return userJpaRepository.existsByUsername(username);
-    }
-
-    @Override
-    public boolean existsByEmail(String email) {
-        return userJpaRepository.existsByEmail(email);
-    }
-
-    @Override
-    public Long save(User user) {
-        UserJpaEntity entity = UserJpaEntity.from(user);
-        UserJpaEntity saved = userJpaRepository.save(entity);
-        return saved.getUserId();
-    }
-
-    @Override
-    public Page<User> search(UserSearchQuery searchQuery) {
-        return userRepository.search(searchQuery);
     }
 }

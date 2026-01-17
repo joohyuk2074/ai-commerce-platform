@@ -1,23 +1,23 @@
 package com.spartaecommerce.user.adapter.in.web;
 
+import com.spartaecommerce.auth.domain.port.in.CreatePassportUseCase;
+import com.spartaecommerce.auth.domain.port.in.LoginUseCase;
+import com.spartaecommerce.auth.domain.port.in.RefreshTokenUseCase;
+import com.spartaecommerce.auth.domain.port.in.ValidateTokenUseCase;
 import com.spartaecommerce.auth.dto.LoginRequest;
 import com.spartaecommerce.auth.dto.LoginResponse;
 import com.spartaecommerce.auth.dto.RefreshTokenRequest;
-import com.spartaecommerce.auth.service.AuthenticationService;
+import com.spartaecommerce.common.auth.Passport;
 import com.spartaecommerce.common.domain.CommonResponse;
 import com.spartaecommerce.common.domain.IdResponse;
 import com.spartaecommerce.user.adapter.in.web.dto.RegisterRequest;
-import com.spartaecommerce.user.adapter.in.web.dto.response.UserResponse;
 import com.spartaecommerce.user.application.dto.command.RegisterUserCommand;
-import com.spartaecommerce.user.application.dto.result.UserResult;
-import com.spartaecommerce.user.domain.port.in.GetUserUseCase;
 import com.spartaecommerce.user.domain.port.in.RegisterUserUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Authentication", description = "인증 관련 API")
@@ -27,8 +27,10 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final RegisterUserUseCase registerUserUseCase;
-    private final GetUserUseCase getUserUseCase;
-    private final AuthenticationService authenticationService;
+    private final LoginUseCase loginUseCase;
+    private final RefreshTokenUseCase refreshTokenUseCase;
+    private final ValidateTokenUseCase validateTokenUseCase;
+    private final CreatePassportUseCase createPassportUseCase;
 
     @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다")
     @PostMapping("/signup")
@@ -47,7 +49,7 @@ public class AuthController {
     public ResponseEntity<CommonResponse<LoginResponse>> login(
         @Valid @RequestBody LoginRequest request
     ) {
-        LoginResponse response = authenticationService.login(request);
+        LoginResponse response = loginUseCase.login(request);
         return ResponseEntity.ok(CommonResponse.success(response));
     }
 
@@ -56,17 +58,63 @@ public class AuthController {
     public ResponseEntity<CommonResponse<LoginResponse>> refreshToken(
         @Valid @RequestBody RefreshTokenRequest request
     ) {
-        LoginResponse response = authenticationService.refreshAccessToken(request.refreshToken());
+        LoginResponse response = refreshTokenUseCase.refreshAccessToken(request.refreshToken());
         return ResponseEntity.ok(CommonResponse.success(response));
     }
 
-    @Operation(summary = "현재 사용자 조회", description = "인증된 사용자의 정보를 조회합니다")
-    @GetMapping("/me")
-    public ResponseEntity<CommonResponse<UserResponse>> getCurrentUser(Authentication authentication) {
-        String name = authentication.getName();
-        UserResult userResult = getUserUseCase.getByUsername(name);
-        CommonResponse<UserResponse> response = CommonResponse.success(UserResponse.from(userResult));
+    @Operation(
+        summary = "JWT 토큰 검증 (Internal)",
+        description = "API Gateway에서 사용하는 JWT 토큰 검증 API. Authorization 헤더의 Bearer 토큰을 검증합니다."
+    )
+    @PostMapping("/validate")
+    public ResponseEntity<CommonResponse<TokenValidationResponse>> validateToken(
+        @RequestHeader("Authorization") String authorizationHeader
+    ) {
+        TokenValidationResponse response = validateTokenUseCase.validateToken(authorizationHeader);
+        return ResponseEntity.ok(CommonResponse.success(response));
+    }
 
-        return ResponseEntity.ok(response);
+    @Operation(
+        summary = "Passport 생성 (Internal)",
+        description = "API Gateway에서 사용하는 Passport 생성 API. JWT 토큰으로부터 Passport를 생성합니다."
+    )
+    @PostMapping("/passport")
+    public ResponseEntity<CommonResponse<Passport>> createPassport(
+        @RequestHeader("Authorization") String authorizationHeader
+    ) {
+        // Bearer prefix 제거
+        String token = authorizationHeader.startsWith("Bearer ")
+            ? authorizationHeader.substring(7)
+            : authorizationHeader;
+
+        Passport passport = createPassportUseCase.createPassportFromToken(token);
+        return ResponseEntity.ok(CommonResponse.success(passport));
+    }
+
+    /**
+     * 토큰 검증 응답 DTO
+     */
+    public record TokenValidationResponse(
+        boolean valid,
+        UserInfo userInfo,
+        String message
+    ) {
+        public record UserInfo(
+            Long userId,
+            String username,
+            java.util.List<String> roles
+        ) {}
+
+        public static TokenValidationResponse valid(Long userId, String username, java.util.List<String> roles) {
+            return new TokenValidationResponse(
+                true,
+                new UserInfo(userId, username, roles),
+                "Token is valid"
+            );
+        }
+
+        public static TokenValidationResponse invalid(String message) {
+            return new TokenValidationResponse(false, null, message);
+        }
     }
 }

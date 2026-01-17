@@ -1,6 +1,7 @@
 package com.spartaecommerce.common.web.config;
 
 import com.spartaecommerce.common.web.interceptor.AuthenticationInterceptor;
+import com.spartaecommerce.common.web.interceptor.PassportInterceptor;
 import com.spartaecommerce.common.web.resolver.AuthenticatedUserArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import java.util.List;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final AuthenticationInterceptor authenticationInterceptor;
+    private final PassportInterceptor passportInterceptor;
     private final AuthenticatedUserArgumentResolver authenticatedUserArgumentResolver;
 
     /**
@@ -37,9 +39,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        // Passport 인터셉터 (Gateway로부터 X-Passport 헤더 파싱)
+        registry.addInterceptor(passportInterceptor)
+            .addPathPatterns("/api/**")
+            .excludePathPatterns(EXCLUDE_PATHS)
+            .order(1);  // 가장 먼저 실행
+
+        // 기존 인증 인터셉터 (Spring Security 기반)
         registry.addInterceptor(authenticationInterceptor)
-            .addPathPatterns("/api/**")  // /api로 시작하는 모든 경로에 적용
-            .excludePathPatterns(EXCLUDE_PATHS);  // 제외 경로 설정
+            .addPathPatterns("/api/**")
+            .excludePathPatterns(EXCLUDE_PATHS)
+            .order(2);  // Passport 이후 실행
     }
 
     @Override

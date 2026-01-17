@@ -86,7 +86,7 @@ public class User {
         return this.grade.equals(UserGrade.ADMIN);
     }
 
-    public boolean isPasswordMatch(String rawPassword, String encodedPassword) {
-        return this.password.equals(encodedPassword);
-    }
+//    public boolean isPasswordMatch(String rawPassword, String encodedPassword) {
+//        return this.password.equals(encodedPassword);
+//    }
 }
