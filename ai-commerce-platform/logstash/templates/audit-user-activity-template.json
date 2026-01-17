@@ -73,13 +73,27 @@
               "type": "keyword"
             },
             "os": {
-              "type": "keyword"
+              "properties": {
+                "name": {
+                  "type": "keyword"
+                },
+                "full": {
+                  "type": "keyword"
+                },
+                "version": {
+                  "type": "keyword"
+                }
+              }
             },
             "os_name": {
               "type": "keyword"
             },
             "device": {
-              "type": "keyword"
+              "properties": {
+                "name": {
+                  "type": "keyword"
+                }
+              }
             },
             "major": {
               "type": "keyword"
