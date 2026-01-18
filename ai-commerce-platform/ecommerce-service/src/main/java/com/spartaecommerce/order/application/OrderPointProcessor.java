@@ -1,6 +1,7 @@
 package com.spartaecommerce.order.application;
 
 import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.auth.Passport;
 import com.spartaecommerce.common.config.properties.PointsProperties;
 import com.spartaecommerce.common.domain.Money;
 import com.spartaecommerce.common.util.DateTimeHolder;
@@ -13,7 +14,6 @@ import com.spartaecommerce.pointwallet.domain.port.out.SavePointTransactionPort;
 import com.spartaecommerce.pointwallet.domain.port.out.LoadPointWalletPort;
 import com.spartaecommerce.pointwallet.domain.port.out.SavePointWalletPort;
 import com.spartaecommerce.pointwallet.domain.service.PointCalculator;
-import com.spartaecommerce.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +41,7 @@ public class OrderPointProcessor {
 
     public BigDecimal calculateExpectedPoints(
         List<OrderItem> orderItems,
-        User user,
+        Passport passport,
         Map<Long, Category> productIdToCategory
     ) {
         PointPolicy pointPolicy = new PointPolicy(
@@ -53,7 +53,7 @@ public class OrderPointProcessor {
 
         return pointCalculator.calculateExpectedPoints(
             orderItems,
-            user,
+            passport,
             productIdToCategory,
             pointPolicy
         );

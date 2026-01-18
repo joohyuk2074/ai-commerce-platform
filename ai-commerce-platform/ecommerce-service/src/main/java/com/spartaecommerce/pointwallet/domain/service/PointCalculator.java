@@ -3,9 +3,9 @@ package com.spartaecommerce.pointwallet.domain.service;
 import com.spartaecommerce.cart.domain.entity.Cart;
 import com.spartaecommerce.cart.domain.entity.CartItem;
 import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.auth.Passport;
 import com.spartaecommerce.order.domain.entity.OrderItem;
 import com.spartaecommerce.pointwallet.domain.entity.PointPolicy;
-import com.spartaecommerce.user.domain.entity.User;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,7 +18,7 @@ public class PointCalculator {
 
     public BigDecimal calculateExpectedPoints(
         List<OrderItem> orderItems,
-        User user,
+        Passport passport,
         Map<Long, Category> categoryResolver,
         PointPolicy policy
     ) {
@@ -31,7 +31,7 @@ public class PointCalculator {
                 return totalPoints;
             }
 
-            BigDecimal effectiveRate = resolveEffectiveRate(user, category, policy);
+            BigDecimal effectiveRate = resolveEffectiveRate(passport, category, policy);
 
             BigDecimal itemPoints = item.getTotalPrice()
                 .amount()
@@ -49,7 +49,7 @@ public class PointCalculator {
 
     public BigDecimal calculateExpectedPoints(
         Cart cart,
-        User user,
+        Passport passport,
         Map<Long, Category> categoryResolver,
         PointPolicy policy
     ) {
@@ -58,7 +58,7 @@ public class PointCalculator {
         for (CartItem item : cart.getItems()) {
             Category category = categoryResolver.get(item.getProductId());
 
-            BigDecimal effectiveRate = resolveEffectiveRate(user, category, policy);
+            BigDecimal effectiveRate = resolveEffectiveRate(passport, category, policy);
 
             BigDecimal itemPoints = item.getTotalPrice()
                 .amount()
@@ -74,8 +74,15 @@ public class PointCalculator {
         return totalPoints.setScale(0, RoundingMode.DOWN);
     }
 
-    private BigDecimal resolveEffectiveRate(User user, Category category, PointPolicy policy) {
-        BigDecimal userRate = user.isVip()
+    private BigDecimal resolveEffectiveRate(
+        Passport passport,
+        Category category,
+        PointPolicy policy
+    ) {
+        // Passport의 grade를 기반으로 VIP 여부 판단
+        boolean isVip = "VIP".equals(passport.grade());
+
+        BigDecimal userRate = isVip
             ? policy.vipRate()
             : policy.defaultRate();
 

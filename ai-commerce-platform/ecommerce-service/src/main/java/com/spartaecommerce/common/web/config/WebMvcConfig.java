@@ -3,6 +3,7 @@ package com.spartaecommerce.common.web.config;
 import com.spartaecommerce.common.web.interceptor.AuthenticationInterceptor;
 import com.spartaecommerce.common.web.interceptor.PassportInterceptor;
 import com.spartaecommerce.common.web.resolver.AuthenticatedUserArgumentResolver;
+import com.spartaecommerce.common.web.resolver.PassportArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -18,6 +19,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private final AuthenticationInterceptor authenticationInterceptor;
     private final PassportInterceptor passportInterceptor;
     private final AuthenticatedUserArgumentResolver authenticatedUserArgumentResolver;
+    private final PassportArgumentResolver passportArgumentResolver;
 
     /**
      * 인증 제외 경로 패턴
@@ -55,5 +57,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(authenticatedUserArgumentResolver);
+        resolvers.add(passportArgumentResolver);
     }
 }

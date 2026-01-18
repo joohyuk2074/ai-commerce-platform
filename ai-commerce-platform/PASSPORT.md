@@ -233,6 +233,15 @@ Backend: PassportInterceptor → PassportContext 저장
 
 ## 사용 방법
 
+### Swagger UI 테스트용 샘플
+
+Swagger UI에서 API를 테스트할 때 사용할 수 있는 등급별 Passport 샘플이 필요하다면 [PASSPORT_SAMPLES.md](./PASSPORT_SAMPLES.md)를 참고하세요.
+
+샘플에는 다음이 포함되어 있습니다:
+- BRONZE, SILVER, GOLD, VIP 등급별 직렬화된 Passport 문자열
+- ADMIN 권한을 가진 Passport
+- Swagger UI에서 `X-Passport` 헤더로 사용하는 방법
+
 ### Service Layer에서 Passport 사용
 
 ```java

@@ -9,13 +9,12 @@ import com.spartaecommerce.cart.domain.port.out.LoadCartPort;
 import com.spartaecommerce.cart.application.dto.query.CartGetQuery;
 import com.spartaecommerce.category.domain.entity.Category;
 import com.spartaecommerce.category.domain.port.out.LoadCategoryPort;
+import com.spartaecommerce.common.auth.Passport;
 import com.spartaecommerce.common.config.properties.PointsProperties;
 import com.spartaecommerce.pointwallet.domain.entity.PointPolicy;
 import com.spartaecommerce.pointwallet.domain.service.PointCalculator;
 import com.spartaecommerce.product.domain.entity.Product;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
-import com.spartaecommerce.user.domain.entity.User;
-import com.spartaecommerce.user.domain.port.out.LoadUserPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +31,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CartQueryService implements GetCartUseCase {
 
-    private final LoadUserPort loadUserPort;
     private final LoadCartPort loadCartPort;
     private final LoadProductPort loadProductPort;
     private final LoadCategoryPort loadCategoryPort;
@@ -48,13 +46,13 @@ public class CartQueryService implements GetCartUseCase {
             return CartResult.from(cart, BigDecimal.ZERO);
         }
 
-        User user = loadUserPort.getById(query.userId());
+        Passport passport = query.passport();
         Map<Long, Category> productIdToCategoryMap = buildProductToCategoryMap(cart);
         PointPolicy policy = createPointPolicy();
 
         BigDecimal expectedPoints = pointCalculator.calculateExpectedPoints(
             cart,
-            user,
+            passport,
             productIdToCategoryMap,
             policy
         );

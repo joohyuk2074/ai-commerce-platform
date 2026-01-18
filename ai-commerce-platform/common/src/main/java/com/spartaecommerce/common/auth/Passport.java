@@ -1,6 +1,7 @@
 package com.spartaecommerce.common.auth;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serial;
@@ -73,6 +74,7 @@ public record Passport(
     /**
      * Passport 만료 여부 확인
      */
+    @JsonIgnore
     public boolean isExpired() {
         return Instant.now().isAfter(expiresAt);
     }
@@ -80,6 +82,7 @@ public record Passport(
     /**
      * 특정 권한 보유 여부 확인
      */
+    @JsonIgnore
     public boolean hasRole(String role) {
         return roles.contains(role);
     }
@@ -87,6 +90,7 @@ public record Passport(
     /**
      * 관리자 권한 확인
      */
+    @JsonIgnore
     public boolean isAdmin() {
         return roles.stream().anyMatch(role ->
             role.equals("ADMIN") || role.equals("SUPER_ADMIN")

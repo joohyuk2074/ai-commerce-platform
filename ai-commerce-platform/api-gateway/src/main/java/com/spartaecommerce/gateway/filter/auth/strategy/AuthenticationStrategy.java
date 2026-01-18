@@ -3,10 +3,6 @@ package com.spartaecommerce.gateway.filter.auth.strategy;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-/**
- * 인증 전략 인터페이스
- * 세션, JWT 등 다양한 인증 방식을 추상화
- */
 public interface AuthenticationStrategy {
 
     /**

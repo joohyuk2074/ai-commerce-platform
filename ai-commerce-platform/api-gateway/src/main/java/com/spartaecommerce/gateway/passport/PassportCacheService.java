@@ -70,7 +70,7 @@ public class PassportCacheService {
             .header("Authorization", "Bearer " + jwtToken)
             .retrieve()
             .bodyToMono(PassportResponse.class)
-            .map(response -> response.data())
+            .map(PassportResponse::data)
             .doOnError(e -> log.error("Failed to fetch Passport from Auth Service", e));
     }
 

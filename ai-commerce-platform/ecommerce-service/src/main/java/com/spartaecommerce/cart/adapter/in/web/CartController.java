@@ -8,8 +8,10 @@ import com.spartaecommerce.cart.application.dto.query.CartGetQuery;
 import com.spartaecommerce.cart.adapter.in.web.dto.request.CartAddItemRequest;
 import com.spartaecommerce.cart.adapter.in.web.dto.request.CartUpdateItemQuantityRequest;
 import com.spartaecommerce.cart.adapter.in.web.dto.response.CartResponse;
+import com.spartaecommerce.common.auth.Passport;
 import com.spartaecommerce.common.domain.CommonResponse;
 import com.spartaecommerce.common.web.annotation.AuthenticatedUserId;
+import com.spartaecommerce.common.web.annotation.CurrentPassport;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -47,9 +49,10 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<CommonResponse<CartResponse>> getCart(
+        @CurrentPassport Passport passport,
         @AuthenticatedUserId Long userId
     ) {
-        CartGetQuery query = new CartGetQuery(userId);
+        CartGetQuery query = new CartGetQuery(userId, passport);
         CartResult result = getCartUseCase.get(query);
         CartResponse response = CartResponse.from(result);
 

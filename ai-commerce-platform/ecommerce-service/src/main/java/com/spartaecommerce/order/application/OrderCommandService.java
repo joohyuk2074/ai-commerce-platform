@@ -1,6 +1,7 @@
 package com.spartaecommerce.order.application;
 
 import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.auth.Passport;
 import com.spartaecommerce.common.domain.Money;
 import com.spartaecommerce.common.infrastructure.lock.DistributedLock;
 import com.spartaecommerce.order.application.dto.command.OrderCreateCommand;
@@ -14,8 +15,6 @@ import com.spartaecommerce.order.domain.port.out.LoadOrderPort;
 import com.spartaecommerce.order.domain.port.out.SaveOrderPort;
 import com.spartaecommerce.product.domain.entity.Product;
 import com.spartaecommerce.product.domain.port.out.SaveProductPort;
-import com.spartaecommerce.user.domain.entity.User;
-import com.spartaecommerce.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
 @Transactional
 public class OrderCommandService implements OrderCommandUseCase {
 
-    private final UserRepository userRepository;
     private final SaveOrderPort saveOrderPort;
     private final LoadOrderPort loadOrderPort;
     private final SaveProductPort saveProductPort;
@@ -45,7 +43,7 @@ public class OrderCommandService implements OrderCommandUseCase {
         errorMessage = "상품 재고 처리 중입니다. 잠시 후 다시 시도해주세요."
     )
     public Long create(OrderCreateCommand createCommand) {
-        User user = userRepository.getById(createCommand.userId());
+        Passport passport = createCommand.passport();
 
         List<OrderItemCreateCommand> orderItemCreateCommands = createCommand.orderItemCreateCommands();
         List<Product> products = orderItemProcessor.loadProducts(orderItemCreateCommands);
@@ -58,22 +56,22 @@ public class OrderCommandService implements OrderCommandUseCase {
         // 주문 생성
         Order order = createOrderAggregate(createCommand, productIdToProduct);
 
-        // 포인트 계산
+        // 포인트 계산 (Passport 기반)
         BigDecimal earnedPoints = orderPointProcessor.calculateExpectedPoints(
             order.getOrderItems(),
-            user,
+            passport,
             productIdToCategory
         );
 
         // 포인트 사용 처리
         Money usedPoints = orderPointProcessor.usePoints(
-            createCommand.userId(),
+            passport.userId(),
             createCommand.usePointAmount()
         );
 
         // 포인트 적립 처리
         Money earnedPointsMoney = orderPointProcessor.earnPoints(
-            createCommand.userId(),
+            passport.userId(),
             earnedPoints
         );
 
@@ -85,9 +83,9 @@ public class OrderCommandService implements OrderCommandUseCase {
 
         // 포인트 트랜잭션 기록
         if (!usedPoints.isZero()) {
-            orderPointProcessor.recordUseTransaction(createCommand.userId(), usedPoints, createdOrderId);
+            orderPointProcessor.recordUseTransaction(passport.userId(), usedPoints, createdOrderId);
         }
-        orderPointProcessor.recordEarnTransaction(createCommand.userId(), earnedPointsMoney, createdOrderId);
+        orderPointProcessor.recordEarnTransaction(passport.userId(), earnedPointsMoney, createdOrderId);
 
         // 주문 히스토리 기록
         orderHistoryRecorder.recordCreation(createdOrderId);
@@ -180,7 +178,7 @@ public class OrderCommandService implements OrderCommandUseCase {
         OrderCreateCommand createCommand,
         Map<Long, Product> productIdToProduct
     ) {
-        Order order = Order.createNew(createCommand.userId(), createCommand.shippingAddress());
+        Order order = Order.createNew(createCommand.passport().userId(), createCommand.shippingAddress());
 
         for (OrderItemCreateCommand itemCommand : createCommand.orderItemCreateCommands()) {
             Product product = productIdToProduct.get(itemCommand.productId());

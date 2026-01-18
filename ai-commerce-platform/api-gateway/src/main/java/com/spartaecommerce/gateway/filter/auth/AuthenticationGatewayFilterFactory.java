@@ -9,12 +9,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.cloud.gateway.route.Route;
-import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import static com.spartaecommerce.gateway.filter.auth.strategy.PassportAuthenticationStrategy.PASSPORT_ATTRIBUTE_KEY;
+import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR;
 
 /**
  * 인증 및 권한 체크를 수행하는 Gateway Filter Factory
@@ -36,7 +38,7 @@ public class AuthenticationGatewayFilterFactory
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             // Route metadata에서 access-level 추출
-            Route route = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR);
+            Route route = exchange.getAttribute(GATEWAY_ROUTE_ATTR);
             if (route == null) {
                 return chain.filter(exchange);
             }
@@ -92,7 +94,10 @@ public class AuthenticationGatewayFilterFactory
         };
     }
 
-    private ServerWebExchange addAuthenticationHeaders(ServerWebExchange exchange, AuthenticationResult authResult) {
+    private ServerWebExchange addAuthenticationHeaders(
+        ServerWebExchange exchange,
+        AuthenticationResult authResult
+    ) {
         if (!authResult.authenticated()) {
             return exchange;
         }
@@ -104,7 +109,7 @@ public class AuthenticationGatewayFilterFactory
                 }
 
                 // Passport 인증인 경우 X-Passport 헤더 추가
-                Passport passport = exchange.getAttribute(PassportAuthenticationStrategy.PASSPORT_ATTRIBUTE_KEY);
+                Passport passport = exchange.getAttribute(PASSPORT_ATTRIBUTE_KEY);
                 if (passport != null) {
                     try {
                         String serializedPassport = PassportSerializer.serialize(passport);

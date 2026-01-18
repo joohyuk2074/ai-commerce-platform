@@ -85,7 +85,6 @@ public class PassportAuthenticationStrategy implements AuthenticationStrategy {
                             log.debug("Passport authentication successful for user: {} (ID: {}), passportId: {}",
                                 passport.username(), passport.userId(), passport.passportId());
 
-                            // 6. AuthenticationResult 반환
                             return Mono.just(AuthenticationResult.authenticated(
                                 passport.userId(),
                                 passport.roles()
