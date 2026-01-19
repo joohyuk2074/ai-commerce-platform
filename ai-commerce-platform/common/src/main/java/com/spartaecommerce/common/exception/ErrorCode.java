@@ -32,8 +32,10 @@ public enum ErrorCode {
     LOCK_ACQUISITION_FAILED(409, "LOCK_ACQUISITION_FAILED", "다른 요청 처리 중입니다"),
 
     // external api
-    EXTERNAL_API_ERROR(500, "EXTERNAL_API_ERROR", "External API call failed.");
+    EXTERNAL_API_ERROR(500, "EXTERNAL_API_ERROR", "External API call failed."),
 
+    // message queue
+    MESSAGE_CONSUME_ERROR(500, "MESSAGE_CONSUME_ERROR", "Message consume failed.");
 
     private final int httpStatus;
     private final String code;

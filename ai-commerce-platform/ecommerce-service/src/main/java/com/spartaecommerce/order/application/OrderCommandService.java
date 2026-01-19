@@ -10,8 +10,10 @@ import com.spartaecommerce.order.application.dto.command.OrderStatusUpdateComman
 import com.spartaecommerce.order.domain.entity.Order;
 import com.spartaecommerce.order.domain.entity.OrderItem;
 import com.spartaecommerce.order.domain.entity.OrderStatus;
+import com.spartaecommerce.order.domain.event.OrderEvent;
 import com.spartaecommerce.order.domain.port.in.OrderCommandUseCase;
 import com.spartaecommerce.order.domain.port.out.LoadOrderPort;
+import com.spartaecommerce.order.domain.port.out.OrderEventPublisher;
 import com.spartaecommerce.order.domain.port.out.SaveOrderPort;
 import com.spartaecommerce.product.domain.entity.Product;
 import com.spartaecommerce.product.domain.port.out.SaveProductPort;
@@ -32,9 +34,13 @@ public class OrderCommandService implements OrderCommandUseCase {
     private final SaveOrderPort saveOrderPort;
     private final LoadOrderPort loadOrderPort;
     private final SaveProductPort saveProductPort;
+
     private final OrderItemProcessor orderItemProcessor;
     private final OrderPointProcessor orderPointProcessor;
+
     private final OrderHistoryRecorder orderHistoryRecorder;
+
+    private final OrderEventPublisher orderEventPublisher;
 
     // TODO: Outbox + Saga 패턴 적용하여 락 범위 최소화
     @Override
@@ -90,7 +96,29 @@ public class OrderCommandService implements OrderCommandUseCase {
         // 주문 히스토리 기록
         orderHistoryRecorder.recordCreation(createdOrderId);
 
+        // 주문 생성 이벤트 발행 (비동기)
+        publishOrderCreatedEvent(order, productIdToCategory);
+
         return createdOrderId;
+    }
+
+    private void publishOrderCreatedEvent(
+        Order order,
+        Map<Long, Category> productIdToCategory
+    ) {
+        // OrderEvent 생성
+        OrderEvent event = OrderEvent.from(order);
+
+        // 카테고리 정보 enrichment
+        for (OrderEvent.OrderItemEvent itemEvent : event.getItems()) {
+            Category category = productIdToCategory.get(itemEvent.getProductId());
+            if (category != null) {
+                itemEvent.enrichCategory(category.getCategoryId(), category.getName());
+            }
+        }
+
+        // 비동기로 이벤트 발행
+        orderEventPublisher.publishOrderCreated(event);
     }
 
     @Override

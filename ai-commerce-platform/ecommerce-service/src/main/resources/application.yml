@@ -35,7 +35,18 @@ spring:
       spec: maximumSize=1000,expireAfterWrite=3600s  # 1시간 캐시
     cache-names:
       - categoryTree
-
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: 1
+      retries: 3
+      properties:
+        max.in.flight.requests.per.connection: 5
+        enable.idempotence: true
+    properties:
+      spring.json.add.type.headers: false
 
 points:
   default-rate: 0.01

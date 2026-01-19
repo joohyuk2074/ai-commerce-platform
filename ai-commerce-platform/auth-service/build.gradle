@@ -34,6 +34,9 @@ dependencies {
     // Redis for token storage (optional)
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // Kafka for event publishing
+    implementation 'org.springframework.kafka:spring-kafka'
+
     // Swagger/OpenAPI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 }
