@@ -1,7 +1,7 @@
 package com.spartaecommerce.category.application.service;
 
 import com.spartaecommerce.category.application.dto.result.CategoryTreeNodeResult;
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 import com.spartaecommerce.category.domain.port.out.LoadCategoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

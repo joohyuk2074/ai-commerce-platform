@@ -4,7 +4,7 @@ import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;
 import com.spartaecommerce.pointwallet.adapter.out.persistence.jpa.entity.PointWalletJpaEntity;
 import com.spartaecommerce.pointwallet.adapter.out.persistence.jpa.repository.PointWalletJpaRepository;
-import com.spartaecommerce.pointwallet.domain.entity.PointWallet;
+import com.spartaecommerce.common.domain.pointwallet.PointWallet;
 import com.spartaecommerce.pointwallet.domain.port.out.LoadPointWalletPort;
 import com.spartaecommerce.pointwallet.domain.port.out.SavePointWalletPort;
 import lombok.RequiredArgsConstructor;

@@ -1,14 +1,14 @@
 package com.spartaecommerce.order.application;
 
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 import com.spartaecommerce.common.auth.Passport;
 import com.spartaecommerce.common.config.properties.PointsProperties;
 import com.spartaecommerce.common.domain.Money;
 import com.spartaecommerce.common.util.DateTimeHolder;
 import com.spartaecommerce.order.domain.entity.OrderItem;
-import com.spartaecommerce.pointwallet.domain.entity.PointPolicy;
-import com.spartaecommerce.pointwallet.domain.entity.PointTransaction;
-import com.spartaecommerce.pointwallet.domain.entity.PointWallet;
+import com.spartaecommerce.common.domain.pointwallet.PointPolicy;
+import com.spartaecommerce.common.domain.pointwallet.PointTransaction;
+import com.spartaecommerce.common.domain.pointwallet.PointWallet;
 import com.spartaecommerce.pointwallet.domain.port.out.LoadPointTransactionPort;
 import com.spartaecommerce.pointwallet.domain.port.out.SavePointTransactionPort;
 import com.spartaecommerce.pointwallet.domain.port.out.LoadPointWalletPort;

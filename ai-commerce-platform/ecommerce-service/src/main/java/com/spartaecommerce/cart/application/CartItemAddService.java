@@ -7,7 +7,7 @@ import com.spartaecommerce.cart.domain.port.out.CartStoragePort;
 import com.spartaecommerce.cart.domain.port.out.LoadCartPort;
 import com.spartaecommerce.cart.domain.port.out.SaveCartPort;
 import com.spartaecommerce.common.config.properties.CartProperties;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

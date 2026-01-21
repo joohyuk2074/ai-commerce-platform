@@ -1,11 +1,11 @@
 package com.spartaecommerce.order.application;
 
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 import com.spartaecommerce.category.domain.port.out.LoadCategoryPort;
 import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;
 import com.spartaecommerce.order.application.dto.command.OrderItemCreateCommand;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

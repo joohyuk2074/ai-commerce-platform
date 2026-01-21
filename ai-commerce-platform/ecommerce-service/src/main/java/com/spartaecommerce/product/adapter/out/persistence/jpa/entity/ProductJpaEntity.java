@@ -1,8 +1,8 @@
 package com.spartaecommerce.product.adapter.out.persistence.jpa.entity;
 
 import com.spartaecommerce.common.domain.Money;
-import com.spartaecommerce.product.domain.entity.ExternalProductRef;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.ExternalProductRef;
+import com.spartaecommerce.common.domain.product.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

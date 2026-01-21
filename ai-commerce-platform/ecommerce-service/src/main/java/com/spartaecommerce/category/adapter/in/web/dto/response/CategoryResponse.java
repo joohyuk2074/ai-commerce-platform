@@ -1,6 +1,6 @@
 package com.spartaecommerce.category.adapter.in.web.dto.response;
 
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 
 public record CategoryResponse(
     Long categoryId,

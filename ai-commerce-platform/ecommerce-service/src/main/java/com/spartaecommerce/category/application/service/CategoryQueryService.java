@@ -5,11 +5,11 @@ import com.spartaecommerce.category.application.dto.query.TopSellingProductsQuer
 import com.spartaecommerce.category.application.dto.result.CategoryProductSalesRankingResult;
 import com.spartaecommerce.category.application.dto.result.CategoryTreeNodeResult;
 import com.spartaecommerce.category.application.dto.result.ProductSalesRankingResult;
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 import com.spartaecommerce.category.domain.port.in.CategoryQueryUseCase;
 import com.spartaecommerce.category.domain.port.out.LoadCategoryPort;
 import com.spartaecommerce.category.domain.port.out.LoadProductSalesStatisticsPort;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;

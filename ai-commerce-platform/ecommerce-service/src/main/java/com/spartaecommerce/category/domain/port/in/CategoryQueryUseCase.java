@@ -4,7 +4,7 @@ import com.spartaecommerce.category.application.dto.query.CategorySearchQuery;
 import com.spartaecommerce.category.application.dto.query.TopSellingProductsQuery;
 import com.spartaecommerce.category.application.dto.result.CategoryProductSalesRankingResult;
 import com.spartaecommerce.category.application.dto.result.CategoryTreeNodeResult;
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 
 import java.util.List;
 

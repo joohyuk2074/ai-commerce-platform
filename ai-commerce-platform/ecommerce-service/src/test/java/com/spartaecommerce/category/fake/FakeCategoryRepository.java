@@ -1,6 +1,6 @@
 package com.spartaecommerce.category.fake;
 
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 import com.spartaecommerce.category.domain.port.out.LoadCategoryPort;
 import com.spartaecommerce.category.domain.port.out.SaveCategoryPort;
 import com.spartaecommerce.common.exception.BusinessException;

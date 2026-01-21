@@ -1,7 +1,7 @@
 package com.spartaecommerce.pointwallet.adapter.out.persistence.jpa.entity;
 
 import com.spartaecommerce.common.domain.Money;
-import com.spartaecommerce.pointwallet.domain.entity.PointWallet;
+import com.spartaecommerce.common.domain.pointwallet.PointWallet;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -2,10 +2,10 @@ package com.spartaecommerce.pointwallet.domain.service;
 
 import com.spartaecommerce.cart.domain.entity.Cart;
 import com.spartaecommerce.cart.domain.entity.CartItem;
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 import com.spartaecommerce.common.auth.Passport;
 import com.spartaecommerce.order.domain.entity.OrderItem;
-import com.spartaecommerce.pointwallet.domain.entity.PointPolicy;
+import com.spartaecommerce.common.domain.pointwallet.PointPolicy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

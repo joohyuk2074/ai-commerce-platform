@@ -1,6 +1,6 @@
 package com.spartaecommerce.category.application.dto.result;
 
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

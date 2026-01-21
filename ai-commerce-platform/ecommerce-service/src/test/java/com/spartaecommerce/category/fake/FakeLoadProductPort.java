@@ -1,8 +1,8 @@
 package com.spartaecommerce.category.fake;
 
 import com.spartaecommerce.product.application.dto.query.ProductSearchQuery;
-import com.spartaecommerce.product.domain.entity.ExternalProductRef;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.ExternalProductRef;
+import com.spartaecommerce.common.domain.product.Product;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

@@ -1,7 +1,7 @@
 package com.spartaecommerce.category.adapter.out.persistence.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

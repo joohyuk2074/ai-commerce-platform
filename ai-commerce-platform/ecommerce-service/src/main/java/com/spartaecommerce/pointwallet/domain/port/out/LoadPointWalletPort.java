@@ -1,6 +1,6 @@
 package com.spartaecommerce.pointwallet.domain.port.out;
 
-import com.spartaecommerce.pointwallet.domain.entity.PointWallet;
+import com.spartaecommerce.common.domain.pointwallet.PointWallet;
 
 import java.util.Optional;
 

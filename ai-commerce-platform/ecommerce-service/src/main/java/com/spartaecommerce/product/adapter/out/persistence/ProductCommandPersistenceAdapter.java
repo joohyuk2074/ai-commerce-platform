@@ -2,7 +2,7 @@ package com.spartaecommerce.product.adapter.out.persistence;
 
 import com.spartaecommerce.product.adapter.out.persistence.jpa.entity.ProductJpaEntity;
 import com.spartaecommerce.product.adapter.out.persistence.jpa.repository.ProductJpaRepository;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 import com.spartaecommerce.product.domain.port.out.SaveProductPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

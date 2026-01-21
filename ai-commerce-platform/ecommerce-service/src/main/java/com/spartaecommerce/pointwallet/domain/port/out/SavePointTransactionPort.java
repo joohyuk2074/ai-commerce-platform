@@ -1,6 +1,6 @@
 package com.spartaecommerce.pointwallet.domain.port.out;
 
-import com.spartaecommerce.pointwallet.domain.entity.PointTransaction;
+import com.spartaecommerce.common.domain.pointwallet.PointTransaction;
 
 /**
  * 포인트 거래 저장 포트 (Outbound Port)

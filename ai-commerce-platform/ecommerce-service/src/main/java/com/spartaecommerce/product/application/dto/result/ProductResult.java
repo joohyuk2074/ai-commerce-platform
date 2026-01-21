@@ -1,7 +1,7 @@
 package com.spartaecommerce.product.application.dto.result;
 
 import com.spartaecommerce.common.domain.Money;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 
 import java.time.LocalDateTime;
 

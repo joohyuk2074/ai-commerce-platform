@@ -1,6 +1,6 @@
 package com.spartaecommerce.pointwallet.fixture;
 
-import com.spartaecommerce.pointwallet.domain.entity.PointWallet;
+import com.spartaecommerce.common.domain.pointwallet.PointWallet;
 import com.spartaecommerce.pointwallet.domain.port.out.SavePointWalletPort;
 
 import java.util.HashMap;

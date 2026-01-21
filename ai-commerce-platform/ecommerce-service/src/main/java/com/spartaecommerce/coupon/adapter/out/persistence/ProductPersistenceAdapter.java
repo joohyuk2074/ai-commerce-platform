@@ -1,7 +1,7 @@
 package com.spartaecommerce.coupon.adapter.out.persistence;
 
 import com.spartaecommerce.coupon.domain.port.out.LoadProductPort;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

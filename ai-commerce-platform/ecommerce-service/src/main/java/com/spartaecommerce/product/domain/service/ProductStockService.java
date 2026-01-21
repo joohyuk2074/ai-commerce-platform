@@ -2,7 +2,7 @@ package com.spartaecommerce.product.domain.service;
 
 import com.spartaecommerce.common.infrastructure.lock.DistributedLock;
 import com.spartaecommerce.common.infrastructure.lock.manager.DistributedLockManager;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import com.spartaecommerce.product.domain.port.out.SaveProductPort;
 

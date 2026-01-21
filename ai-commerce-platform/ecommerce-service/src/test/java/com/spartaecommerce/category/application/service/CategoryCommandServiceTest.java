@@ -1,7 +1,7 @@
 package com.spartaecommerce.category.application.service;
 
 import com.spartaecommerce.category.application.dto.commnad.CategoryRegisterCommand;
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 import com.spartaecommerce.category.fake.FakeCategoryClosurePort;
 import com.spartaecommerce.category.fake.FakeCategoryRepository;
 import com.spartaecommerce.common.exception.BusinessException;

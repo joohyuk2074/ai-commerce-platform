@@ -1,6 +1,6 @@
 package com.spartaecommerce.pointwallet.domain.port.out;
 
-import com.spartaecommerce.pointwallet.domain.entity.PointTransaction;
+import com.spartaecommerce.common.domain.pointwallet.PointTransaction;
 
 import java.time.LocalDateTime;
 import java.util.List;

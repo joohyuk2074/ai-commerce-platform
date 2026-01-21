@@ -1,7 +1,7 @@
 package com.spartaecommerce.pointwallet.adapter.in.web.dto.response;
 
 import com.spartaecommerce.pointwallet.application.dto.result.PointTransactionResult;
-import com.spartaecommerce.pointwallet.domain.entity.PointTransactionType;
+import com.spartaecommerce.common.domain.pointwallet.PointTransactionType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

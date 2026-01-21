@@ -1,12 +1,12 @@
 package com.spartaecommerce.product.application.processor;
 
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 import com.spartaecommerce.category.domain.port.out.LoadCategoryPort;
 import com.spartaecommerce.common.domain.Money;
 import com.spartaecommerce.product.application.dto.result.ExternalProductSyncResult;
 import com.spartaecommerce.product.application.dto.result.SyncBatchResult;
-import com.spartaecommerce.product.domain.entity.ExternalProductRef;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.ExternalProductRef;
+import com.spartaecommerce.common.domain.product.Product;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import com.spartaecommerce.product.domain.port.out.SaveProductPort;
 import lombok.RequiredArgsConstructor;

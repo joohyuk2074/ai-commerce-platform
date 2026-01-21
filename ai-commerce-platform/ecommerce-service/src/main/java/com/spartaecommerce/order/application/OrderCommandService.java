@@ -1,6 +1,6 @@
 package com.spartaecommerce.order.application;
 
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 import com.spartaecommerce.common.auth.Passport;
 import com.spartaecommerce.common.domain.Money;
 import com.spartaecommerce.common.infrastructure.lock.DistributedLock;
@@ -15,7 +15,7 @@ import com.spartaecommerce.order.domain.port.in.OrderCommandUseCase;
 import com.spartaecommerce.order.domain.port.out.LoadOrderPort;
 import com.spartaecommerce.order.domain.port.out.OrderEventPublisher;
 import com.spartaecommerce.order.domain.port.out.SaveOrderPort;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 import com.spartaecommerce.product.domain.port.out.SaveProductPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

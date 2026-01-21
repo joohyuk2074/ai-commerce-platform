@@ -1,6 +1,6 @@
 package com.spartaecommerce.product.domain.port.out;
 
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 
 import java.util.List;
 

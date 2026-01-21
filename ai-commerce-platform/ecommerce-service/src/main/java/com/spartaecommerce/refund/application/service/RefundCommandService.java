@@ -4,7 +4,7 @@ import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;
 import com.spartaecommerce.order.domain.entity.Order;
 import com.spartaecommerce.order.domain.port.out.LoadOrderPort;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import com.spartaecommerce.product.domain.port.out.SaveProductPort;
 import com.spartaecommerce.refund.application.dto.command.RefundCreateCommand;

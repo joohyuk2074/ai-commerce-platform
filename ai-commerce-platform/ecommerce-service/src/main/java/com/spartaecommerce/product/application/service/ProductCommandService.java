@@ -8,7 +8,7 @@ import com.spartaecommerce.order.domain.port.out.LoadOrderPort;
 import com.spartaecommerce.order.domain.repository.OrderRepository;
 import com.spartaecommerce.product.application.dto.command.ProductRegisterCommand;
 import com.spartaecommerce.product.application.dto.command.ProductUpdateCommand;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 import com.spartaecommerce.product.domain.port.in.ProductCommandUseCase;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import com.spartaecommerce.product.domain.port.out.SaveProductPort;

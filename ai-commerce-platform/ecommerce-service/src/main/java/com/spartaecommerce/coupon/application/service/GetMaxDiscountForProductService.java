@@ -10,7 +10,7 @@ import com.spartaecommerce.coupon.domain.port.in.GetMaxDiscountForProductUseCase
 import com.spartaecommerce.coupon.domain.port.out.LoadCouponPort;
 import com.spartaecommerce.coupon.domain.port.out.LoadProductPort;
 import com.spartaecommerce.coupon.domain.service.CouponDiscountCalculator;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

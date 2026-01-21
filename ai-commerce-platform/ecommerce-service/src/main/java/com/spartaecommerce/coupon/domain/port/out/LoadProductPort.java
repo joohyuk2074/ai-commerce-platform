@@ -1,6 +1,6 @@
 package com.spartaecommerce.coupon.domain.port.out;
 
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 
 /**
  * 상품 조회 포트 (Outbound Port)

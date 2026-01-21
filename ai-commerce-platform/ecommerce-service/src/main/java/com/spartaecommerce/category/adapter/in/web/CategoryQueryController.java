@@ -9,7 +9,7 @@ import com.spartaecommerce.category.application.dto.query.CategorySearchQuery;
 import com.spartaecommerce.category.application.dto.query.TopSellingProductsQuery;
 import com.spartaecommerce.category.application.dto.result.CategoryProductSalesRankingResult;
 import com.spartaecommerce.category.application.dto.result.CategoryTreeNodeResult;
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 import com.spartaecommerce.category.domain.port.in.CategoryQueryUseCase;
 import com.spartaecommerce.common.domain.CommonResponse;
 import com.spartaecommerce.common.domain.PageResponse;

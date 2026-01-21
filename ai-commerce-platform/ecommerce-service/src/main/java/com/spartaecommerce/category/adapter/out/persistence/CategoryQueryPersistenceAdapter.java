@@ -6,7 +6,7 @@ import com.spartaecommerce.category.adapter.out.persistence.jpa.entity.CategoryC
 import com.spartaecommerce.category.adapter.out.persistence.jpa.entity.CategoryJpaEntity;
 import com.spartaecommerce.category.adapter.out.persistence.jpa.repository.CategoryClosureJpaRepository;
 import com.spartaecommerce.category.adapter.out.persistence.jpa.repository.CategoryJpaRepository;
-import com.spartaecommerce.category.domain.entity.Category;
+import com.spartaecommerce.common.domain.category.Category;
 import com.spartaecommerce.category.domain.port.out.LoadCategoryPort;
 import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;

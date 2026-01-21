@@ -3,7 +3,7 @@ package com.spartaecommerce.pointwallet.adapter.in.event;
 import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;
 import com.spartaecommerce.pointwallet.adapter.in.event.dto.UserCreatedEvent;
-import com.spartaecommerce.pointwallet.domain.entity.PointWallet;
+import com.spartaecommerce.common.domain.pointwallet.PointWallet;
 import com.spartaecommerce.pointwallet.domain.port.out.SavePointWalletPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

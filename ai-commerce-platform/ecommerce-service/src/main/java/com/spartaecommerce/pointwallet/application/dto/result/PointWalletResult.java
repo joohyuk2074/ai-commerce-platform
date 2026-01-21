@@ -1,7 +1,7 @@
 package com.spartaecommerce.pointwallet.application.dto.result;
 
 import com.spartaecommerce.common.domain.Money;
-import com.spartaecommerce.pointwallet.domain.entity.PointWallet;
+import com.spartaecommerce.common.domain.pointwallet.PointWallet;
 
 import java.time.LocalDateTime;
 

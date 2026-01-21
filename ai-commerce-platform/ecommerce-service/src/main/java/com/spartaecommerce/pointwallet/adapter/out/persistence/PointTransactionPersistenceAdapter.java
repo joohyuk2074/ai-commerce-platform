@@ -2,8 +2,8 @@ package com.spartaecommerce.pointwallet.adapter.out.persistence;
 
 import com.spartaecommerce.pointwallet.adapter.out.persistence.jpa.entity.PointTransactionJpaEntity;
 import com.spartaecommerce.pointwallet.adapter.out.persistence.jpa.repository.PointTransactionJpaRepository;
-import com.spartaecommerce.pointwallet.domain.entity.PointTransaction;
-import com.spartaecommerce.pointwallet.domain.entity.PointTransactionType;
+import com.spartaecommerce.common.domain.pointwallet.PointTransaction;
+import com.spartaecommerce.common.domain.pointwallet.PointTransactionType;
 import com.spartaecommerce.pointwallet.domain.port.out.LoadPointTransactionPort;
 import com.spartaecommerce.pointwallet.domain.port.out.SavePointTransactionPort;
 import lombok.RequiredArgsConstructor;

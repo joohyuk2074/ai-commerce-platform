@@ -2,7 +2,7 @@ package com.spartaecommerce.product.application.service;
 
 import com.spartaecommerce.product.application.dto.query.ProductSearchQuery;
 import com.spartaecommerce.product.application.dto.result.ProductResult;
-import com.spartaecommerce.product.domain.entity.Product;
+import com.spartaecommerce.common.domain.product.Product;
 import com.spartaecommerce.product.domain.port.in.ProductQueryUseCase;
 import com.spartaecommerce.product.domain.port.out.LoadProductPort;
 import lombok.RequiredArgsConstructor;
