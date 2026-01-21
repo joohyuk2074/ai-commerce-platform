@@ -1,6 +1,8 @@
 package com.spartaecommerce.common.domain.event;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -18,38 +20,45 @@ import java.util.UUID;
  */
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
+@JsonDeserialize
 public abstract class BaseDomainEvent {
 
     /**
      * 이벤트 고유 식별자 (UUID)
      * 용도: 이벤트 추적, 중복 방지, 로깅
      */
-    private final String eventId;
+    private String eventId;
 
     /**
      * 이벤트 타입 (클래스명 자동 설정)
      * 예: "UserCreatedEvent", "OrderPlacedEvent"
      */
-    private final String eventType;
+    private String eventType;
 
     /**
      * 이벤트 발생 시각
      * 용도: 순서 보장, 타임라인 분석
      */
-    private final LocalDateTime occurredAt;
+    private LocalDateTime occurredAt;
 
     /**
      * 이벤트 스키마 버전
      * 용도: 호환성 관리, 마이그레이션
      * 기본값: 1
      */
-    private final int schemaVersion;
+    private int schemaVersion;
 
     /**
      * 메타데이터 (선택적)
      * 예: correlationId, userId, sessionId, source 등
      */
-    private final Map<String, String> metadata;
+    private Map<String, String> metadata;
+
+    // Jackson을 위한 기본 생성자
+    protected BaseDomainEvent() {
+        this.metadata = new HashMap<>();
+    }
 
     protected BaseDomainEvent(LocalDateTime occurredAt) {
         this(1, occurredAt);

@@ -36,6 +36,15 @@ dependencies {
 
     // Kafka for event publishing
     implementation 'org.springframework.kafka:spring-kafka'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+
+    // Testcontainers for integration tests
+    testImplementation 'org.testcontainers:testcontainers:1.19.3'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.3'
+    testImplementation 'org.testcontainers:kafka:1.19.3'
+
+    // Awaitility for async testing
+    testImplementation 'org.awaitility:awaitility:4.2.0'
 
     // Swagger/OpenAPI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'

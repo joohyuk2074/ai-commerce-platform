@@ -22,17 +22,22 @@ import java.time.LocalDateTime;
 @Getter
 public class UserCreatedEvent extends BaseDomainEvent {
 
-    private final Long userId;
+    private Long userId;
 
-    private final String username;
+    private String username;
 
-    private final String email;
+    private String email;
 
-    private final String name;
+    private String name;
 
-    private final String phoneNumber;
+    private String phoneNumber;
 
-    private final String grade;
+    private String grade;
+
+    // Jackson을 위한 기본 생성자
+    protected UserCreatedEvent() {
+        super();
+    }
 
     private UserCreatedEvent(
         Long userId,
