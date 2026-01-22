@@ -1,0 +1,17 @@
+# Grafana Dashboard 프로비저닝 설정
+# 역할: Grafana 시작 시 자동으로 대시보드 로드
+
+apiVersion: 1
+
+providers:
+  # JSON 파일로부터 대시보드 로드
+  - name: 'AI Commerce Platform'
+    orgId: 1
+    folder: 'AI Commerce Platform'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/json
+      foldersFromFilesStructure: true

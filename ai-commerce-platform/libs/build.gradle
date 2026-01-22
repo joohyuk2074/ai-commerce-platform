@@ -1,0 +1,10 @@
+// This is a container module for shared libraries
+// It should not be built as a standalone application
+
+tasks.named('bootJar') {
+    enabled = false
+}
+
+tasks.named('jar') {
+    enabled = false
+}

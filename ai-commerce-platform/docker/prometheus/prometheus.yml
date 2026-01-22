@@ -1,0 +1,101 @@
+# Prometheus 설정
+# 역할: 메트릭 수집, 저장 및 쿼리
+
+global:
+  scrape_interval: 15s      # 15초마다 메트릭 수집
+  evaluation_interval: 15s   # 15초마다 rule 평가
+  scrape_timeout: 10s        # 수집 타임아웃
+
+  # 모든 메트릭에 추가되는 기본 레이블
+  external_labels:
+    cluster: 'ai-commerce-platform'
+    environment: 'development'
+
+# Alertmanager 설정 (선택사항)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Rule 파일 로드 (알림/집계 규칙)
+# rule_files:
+#   - "alerts/*.yml"
+#   - "rules/*.yml"
+
+# 메트릭 수집 대상 설정
+scrape_configs:
+  # Prometheus 자체 메트릭
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # OpenTelemetry Collector - 애플리케이션 메트릭
+  # OTel Collector의 Prometheus exporter (8889 포트)
+  # Spring Boot 애플리케이션의 trace 데이터로부터 생성된 메트릭
+  - job_name: 'otel-collector-app-metrics'
+    static_configs:
+      - targets: ['otel-collector:8889']
+        labels:
+          service: 'otel-collector'
+          type: 'application-metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # OpenTelemetry Collector - Collector 자체 메트릭
+  # Collector의 내부 상태 모니터링 (8888 포트)
+  - job_name: 'otel-collector-internal'
+    static_configs:
+      - targets: ['otel-collector:8888']
+        labels:
+          service: 'otel-collector'
+          type: 'internal-metrics'
+    scrape_interval: 30s
+
+  # Spring Boot Actuator - E-commerce Service
+  # 애플리케이션이 Docker 네트워크에 연결되어 있어야 함
+  # 또는 host.docker.internal 사용 (Mac/Windows)
+  - job_name: 'ecommerce-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8082']
+        labels:
+          service: 'ecommerce-service'
+          application: 'ai-commerce-platform'
+    scrape_interval: 15s
+    # 애플리케이션이 실행되지 않을 때도 Prometheus가 시작되도록
+    # 스크레이핑 실패를 무시
+    # honor_labels: true
+
+  # Spring Boot Actuator - Auth Service
+  - job_name: 'auth-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8081']
+        labels:
+          service: 'auth-service'
+          application: 'ai-commerce-platform'
+    scrape_interval: 15s
+
+  # MySQL Exporter (선택사항 - 별도 설치 필요)
+  # - job_name: 'mysql'
+  #   static_configs:
+  #     - targets: ['mysql-exporter:9104']
+  #       labels:
+  #         service: 'mysql'
+
+  # Redis Exporter (선택사항 - 별도 설치 필요)
+  # - job_name: 'redis'
+  #   static_configs:
+  #     - targets: ['redis-exporter:9121']
+  #       labels:
+  #         service: 'redis'
+
+  # Kafka Exporter (선택사항 - 별도 설치 필요)
+  # - job_name: 'kafka'
+  #   static_configs:
+  #     - targets: ['kafka-exporter:9308']
+  #       labels:
+  #         service: 'kafka'

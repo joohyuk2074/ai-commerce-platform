@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: auth-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/sparta_auth_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+server:
+  port: 8083
+
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-for-jwt-signing-must-be-at-least-256-bits-long}
+  access-token-expiration: 3600000  # 1 hour in milliseconds
+  refresh-token-expiration: 604800000  # 7 days in milliseconds
+  issuer: ai-commerce-platform
+
+logging:
+  level:
+    com.spartaecommerce: DEBUG
+    org.springframework.security: DEBUG
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      service: auth-service
+    export:
+      prometheus:
+        enabled: true

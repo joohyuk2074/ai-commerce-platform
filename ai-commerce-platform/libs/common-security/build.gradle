@@ -1,0 +1,32 @@
+plugins {
+    id 'java-library'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Depend on common-core
+    api project(':libs:common-core')
+
+    // Spring Security (placeholder for JWT/Passport)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+}
+
+// 라이브러리 모듈이므로 bootJar 비활성화
+tasks.named('bootJar') {
+    enabled = false
+}
+
+// jar 활성화
+tasks.named('jar') {
+    enabled = true
+}

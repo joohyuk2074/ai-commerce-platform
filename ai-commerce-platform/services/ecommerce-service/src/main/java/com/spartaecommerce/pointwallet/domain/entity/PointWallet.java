@@ -1,4 +1,4 @@
-package com.spartaecommerce.common.domain.pointwallet;
+package com.spartaecommerce.pointwallet.domain.entity;
 
 import com.spartaecommerce.common.exception.BusinessException;
 import com.spartaecommerce.common.exception.ErrorCode;

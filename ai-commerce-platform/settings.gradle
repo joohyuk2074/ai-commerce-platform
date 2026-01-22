@@ -1,11 +1,21 @@
 rootProject.name = 'ai-commerce-platform'
 
-include("common")
-include("api-gateway")
-include("auth-service")
-include("user-service")
-include("chat-service")
-include("order-service")
-include("product-service")
+// Shared libraries
+include("libs:common-core")
+include("libs:common-web")
+include("libs:common-security")
+include("libs:common-kafka")
+include("libs:common-observability")
+include("libs:common-test")
 
-include("ecommerce-service")
+// Legacy common module (to be migrated to libs)
+include("common")
+
+// Services
+include("services:gateway-service")
+include("services:auth-service")
+include("services:user-service")
+include("services:catalog-service")
+include("services:order-service")
+include("services:chat-service")
+include("services:ecommerce-service")

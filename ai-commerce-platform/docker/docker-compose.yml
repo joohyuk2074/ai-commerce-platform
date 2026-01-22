@@ -1,0 +1,316 @@
+services:
+  # E-commerce Service Dependencies
+  mysql:
+    image: mysql:8.0
+    container_name: sparta-ecommerce-mysql
+    ports:
+      - "${MYSQL_PORT}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+      TZ: Asia/Seoul
+    volumes:
+      - sparta-ecommerce-mysql-volume:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    networks:
+      - sparta-ecommerce-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: sparta-ecommerce-redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - sparta-ecommerce-redis-volume:/data
+    command: redis-server --appendonly yes
+    networks:
+      - sparta-ecommerce-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # Kafka (KRaft mode - without Zookeeper)
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: sparta-ecommerce-kafka
+    ports:
+      - "9092:9092"
+      - "9094:9094"
+      - "9093:9093"
+    environment:
+      # KRaft 설정
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      # 리스너 설정 (내부: kafka:9092, 외부: localhost:9094)
+      KAFKA_LISTENERS: PLAINTEXT_INTERNAL://0.0.0.0:9092,PLAINTEXT_EXTERNAL://0.0.0.0:9094,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_INTERNAL://kafka:9092,PLAINTEXT_EXTERNAL://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+
+      # 클러스터 설정
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+      # 로그 설정
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - sparta-ecommerce-kafka-volume:/var/lib/kafka/data
+    networks:
+      - sparta-ecommerce-network
+    healthcheck:
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  # ELK Stack for Log Management
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: sparta-ecommerce-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - sparta-ecommerce-elasticsearch-volume:/usr/share/elasticsearch/data
+    networks:
+      - sparta-ecommerce-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  es-init:
+    image: alpine:3.19
+    container_name: sparta-ecommerce-es-init
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - ./logstash/templates:/templates:ro
+      - ./logstash/scripts:/scripts:ro
+    environment:
+      - ELASTICSEARCH_HOST=elasticsearch:9200
+    networks:
+      - sparta-ecommerce-network
+    command: >
+      sh -c "
+        apk add --no-cache curl jq bash &&
+        bash /scripts/init-templates.sh
+      "
+    restart: "no"
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: sparta-ecommerce-logstash
+    depends_on:
+      - elasticsearch
+      - kafka
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+    environment:
+      - "LS_JAVA_OPTS=-Xms256m -Xmx256m"
+    networks:
+      - sparta-ecommerce-network
+    restart: unless-stopped
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: sparta-ecommerce-kibana
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    networks:
+      - sparta-ecommerce-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  kafka-ui:
+    image: redpandadata/console:latest
+    container_name: sparta-ecommerce-kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8088:8080"
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+    networks:
+      - sparta-ecommerce-network
+    restart: unless-stopped
+
+  # OpenTelemetry Collector - 텔레메트리 데이터 수집/처리/라우팅
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.93.0
+    container_name: sparta-ecommerce-otel-collector
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver (서비스 -> Collector)
+      - "4318:4318"   # OTLP HTTP receiver (서비스 -> Collector)
+      - "8888:8888"   # Prometheus metrics (Collector 자체 메트릭)
+      - "13133:13133" # Health check endpoint
+    volumes:
+      - ./otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    networks:
+      - sparta-ecommerce-network
+    depends_on:
+      - jaeger
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:13133/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Jaeger - 분산 추적 백엔드 및 UI
+  jaeger:
+    image: jaegertracing/all-in-one:1.53
+    container_name: sparta-ecommerce-jaeger
+    ports:
+      - "16686:16686"  # Jaeger UI (웹 브라우저 접속)
+      - "14250:14250"  # gRPC collector (Collector -> Jaeger)
+    environment:
+      # OTLP 수신 활성화 (OpenTelemetry Collector로부터)
+      - COLLECTOR_OTLP_ENABLED=true
+
+      # Elasticsearch 스토리지 통합 (기존 ELK 스택 활용)
+      - SPAN_STORAGE_TYPE=elasticsearch
+      - ES_SERVER_URLS=http://elasticsearch:9200
+      - ES_INDEX_PREFIX=jaeger
+
+      # 성능 설정
+      - COLLECTOR_QUEUE_SIZE=2000
+      - COLLECTOR_NUM_WORKERS=50
+
+      # 로그 레벨
+      - LOG_LEVEL=info
+    networks:
+      - sparta-ecommerce-network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:16686/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Prometheus - 메트릭 수집 및 저장
+  prometheus:
+    image: prom/prometheus:v2.49.0
+    container_name: sparta-ecommerce-prometheus
+    ports:
+      - "9090:9090"     # Prometheus UI 및 API
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - sparta-ecommerce-prometheus-volume:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention.time=30d'  # 30일 데이터 보관
+    networks:
+      - sparta-ecommerce-network
+    depends_on:
+      - otel-collector
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Grafana - 통합 시각화 대시보드
+  grafana:
+    image: grafana/grafana:10.3.0
+    container_name: sparta-ecommerce-grafana
+    ports:
+      - "3000:3000"     # Grafana UI
+    environment:
+      # 기본 관리자 계정
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+      # 익명 접근 허용 (개발 환경)
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+
+      # 플러그인 설치 허용
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - sparta-ecommerce-grafana-volume:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - sparta-ecommerce-network
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+
+volumes:
+  # E-commerce Service Volumes
+  sparta-ecommerce-mysql-volume:
+    name: sparta-ecommerce-mysql-volume
+  sparta-ecommerce-redis-volume:
+    name: sparta-ecommerce-redis-volume
+  sparta-ecommerce-kafka-volume:
+    name: sparta-ecommerce-kafka-volume
+  sparta-ecommerce-elasticsearch-volume:
+    name: sparta-ecommerce-elasticsearch-volume
+  sparta-ecommerce-prometheus-volume:
+    name: sparta-ecommerce-prometheus-volume
+  sparta-ecommerce-grafana-volume:
+    name: sparta-ecommerce-grafana-volume
+
+networks:
+  sparta-ecommerce-network:
+    name: sparta-ecommerce-network
+    driver: bridge
