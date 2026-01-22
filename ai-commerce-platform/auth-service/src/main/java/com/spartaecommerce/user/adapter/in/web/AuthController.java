@@ -9,10 +9,6 @@ import com.spartaecommerce.auth.dto.LoginResponse;
 import com.spartaecommerce.auth.dto.RefreshTokenRequest;
 import com.spartaecommerce.common.auth.Passport;
 import com.spartaecommerce.common.domain.CommonResponse;
-import com.spartaecommerce.common.domain.IdResponse;
-import com.spartaecommerce.user.adapter.in.web.dto.RegisterRequest;
-import com.spartaecommerce.user.application.dto.command.RegisterUserCommand;
-import com.spartaecommerce.user.domain.port.in.RegisterUserUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,23 +22,10 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final RegisterUserUseCase registerUserUseCase;
     private final LoginUseCase loginUseCase;
     private final RefreshTokenUseCase refreshTokenUseCase;
     private final ValidateTokenUseCase validateTokenUseCase;
     private final CreatePassportUseCase createPassportUseCase;
-
-    @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다")
-    @PostMapping("/signup")
-    public ResponseEntity<CommonResponse<IdResponse>> register(
-        @Valid @RequestBody RegisterRequest request
-    ) {
-        RegisterUserCommand command = request.toCommand();
-        Long userId = registerUserUseCase.register(command);
-        CommonResponse<IdResponse> idResponseCommonResponse = CommonResponse.create(userId);
-
-        return ResponseEntity.ok(idResponseCommonResponse);
-    }
 
     @Operation(summary = "로그인", description = "사용자 로그인 및 JWT 토큰 발급")
     @PostMapping("/login")

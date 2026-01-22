@@ -6,6 +6,7 @@ import com.spartaecommerce.user.adapter.out.persistence.jpa.entity.UserJpaEntity
 import com.spartaecommerce.user.adapter.out.persistence.jpa.repository.UserJpaRepository;
 import com.spartaecommerce.user.domain.entity.User;
 import com.spartaecommerce.user.domain.port.out.LoadUserPort;
+import com.spartaecommerce.user.domain.port.out.SaveUserPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,9 +14,16 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class UserPersistenceAdapter implements LoadUserPort {
+public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
 
     private final UserJpaRepository userJpaRepository;
+
+    @Override
+    public Long save(User user) {
+        UserJpaEntity entity = UserJpaEntity.from(user);
+        UserJpaEntity saved = userJpaRepository.save(entity);
+        return saved.getUserId();
+    }
 
     @Override
     public boolean existsByUsername(String username) {
