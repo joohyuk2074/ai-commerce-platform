@@ -49,6 +49,9 @@ public class ProductJpaEntity {
     @Column(nullable = false)
     private Long categoryId;
 
+    @Column
+    private Long sellerId;
+
     @Column(length = 100)
     private String vendor;
 
@@ -85,6 +88,7 @@ public class ProductJpaEntity {
             product.getPrice().amount(),
             product.getStock(),
             product.getCategoryId(),
+            product.getSellerId(),
             vendor,
             externalId,
             product.isOrderable(),
@@ -107,6 +111,7 @@ public class ProductJpaEntity {
             .price(Money.from(this.price))
             .stock(this.stock)
             .categoryId(this.categoryId)
+            .sellerId(this.sellerId)
             .externalProductRef(externalProductRef)
             .isOrderable(this.isOrderable)
             .deleted(this.deleted)

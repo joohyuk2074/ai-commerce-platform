@@ -1,7 +1,9 @@
 package com.spartaecommerce.product.adapter.in.web;
 
+import com.spartaecommerce.common.auth.Passport;
 import com.spartaecommerce.common.domain.CommonResponse;
 import com.spartaecommerce.common.domain.IdResponse;
+import com.spartaecommerce.common.web.annotation.CurrentPassport;
 import com.spartaecommerce.product.adapter.in.web.dto.request.ProductRegisterRequest;
 import com.spartaecommerce.product.adapter.in.web.dto.request.ProductUpdateRequest;
 import com.spartaecommerce.product.application.dto.command.ProductRegisterCommand;
@@ -43,10 +45,11 @@ public class ProductCommandController {
     })
     @PostMapping("/products")
     public ResponseEntity<CommonResponse<IdResponse>> create(
+        @CurrentPassport Passport passport,
         @Parameter(description = "상품 등록 정보", required = true)
         @Valid @RequestBody ProductRegisterRequest registerRequest
     ) {
-        ProductRegisterCommand registerCommand = registerRequest.toCommand();
+        ProductRegisterCommand registerCommand = registerRequest.toCommand(passport.userId());
 
         Long productId = productCommandUseCase.register(registerCommand);
 

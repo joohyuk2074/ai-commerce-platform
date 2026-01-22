@@ -32,7 +32,8 @@ public class ProductCommandService implements ProductCommandUseCase {
             registerCommand.description(),
             registerCommand.price(),
             registerCommand.stock(),
-            registerCommand.categoryId()
+            registerCommand.categoryId(),
+            registerCommand.sellerId()
         );
 
         return saveProductPort.save(product);

@@ -29,6 +29,8 @@ public class Product {
 
     private Long categoryId;
 
+    private Long sellerId;
+
     private boolean isOrderable;
 
     private boolean deleted;
@@ -42,7 +44,8 @@ public class Product {
         String description,
         Money price,
         Integer stock,
-        Long categoryId
+        Long categoryId,
+        Long sellerId
     ) {
         return Product.builder()
             .name(name)
@@ -50,6 +53,7 @@ public class Product {
             .price(price)
             .stock(stock)
             .categoryId(categoryId)
+            .sellerId(sellerId)
             .isOrderable(stock != null && stock > 0)
             .deleted(false)
             .build();
@@ -62,7 +66,8 @@ public class Product {
         String description,
         Money price,
         Integer stock,
-        Long categoryId
+        Long categoryId,
+        Long sellerId
     ) {
         return Product.builder()
             .externalProductRef(ExternalProductRef.of(vendor, externalProductId))
@@ -71,6 +76,7 @@ public class Product {
             .price(price)
             .stock(stock)
             .categoryId(categoryId)
+            .sellerId(sellerId)
             .isOrderable(stock != null && stock > 0)
             .deleted(false)
             .build();

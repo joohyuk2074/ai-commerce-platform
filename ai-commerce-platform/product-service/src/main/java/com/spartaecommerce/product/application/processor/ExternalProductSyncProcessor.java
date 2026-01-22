@@ -74,7 +74,7 @@ public class ExternalProductSyncProcessor {
                 );
                 productsToUpdate.add(existingProduct);
             } else {
-                // 신규 상품 생성
+                // 신규 상품 생성 (외부 동기화 상품은 sellerId = null)
 
                 Product newProduct = Product.createFromExternal(
                     item.vendor(),
@@ -83,7 +83,8 @@ public class ExternalProductSyncProcessor {
                     item.description(),
                     Money.from(item.price()),
                     item.stock(),
-                    externalCategory.getCategoryId()
+                    externalCategory.getCategoryId(),
+                    null  // External products have no seller
                 );
                 productsToCreate.add(newProduct);
             }

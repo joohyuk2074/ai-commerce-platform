@@ -34,9 +34,9 @@ public record ProductRegisterRequest(
     Long categoryId
 ) {
 
-    public ProductRegisterCommand toCommand() {
+    public ProductRegisterCommand toCommand(Long sellerId) {
         return new ProductRegisterCommand(
-            name, description, Money.from(price), stock, categoryId
+            name, description, Money.from(price), stock, categoryId, sellerId
         );
     }
 }

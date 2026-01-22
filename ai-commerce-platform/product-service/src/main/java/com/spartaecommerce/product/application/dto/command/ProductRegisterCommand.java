@@ -7,6 +7,7 @@ public record ProductRegisterCommand(
     String description,
     Money price,
     Integer stock,
-    Long categoryId
+    Long categoryId,
+    Long sellerId
 ) {
 }
