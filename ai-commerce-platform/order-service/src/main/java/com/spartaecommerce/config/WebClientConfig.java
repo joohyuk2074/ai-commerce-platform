@@ -11,10 +11,20 @@ public class WebClientConfig {
     @Value("${external.ecommerce-service.url}")
     private String ecommerceServiceUrl;
 
+    @Value("${external.product-service.url}")
+    private String productServiceUrl;
+
     @Bean
     public WebClient ecommerceServiceWebClient(WebClient.Builder builder) {
         return builder
             .baseUrl(ecommerceServiceUrl)
+            .build();
+    }
+
+    @Bean
+    public WebClient productServiceWebClient(WebClient.Builder builder) {
+        return builder
+            .baseUrl(productServiceUrl)
             .build();
     }
 }

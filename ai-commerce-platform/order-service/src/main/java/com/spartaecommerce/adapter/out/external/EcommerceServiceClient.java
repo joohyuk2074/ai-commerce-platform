@@ -25,85 +25,34 @@ import java.util.stream.Collectors;
 public class EcommerceServiceClient {
 
     private final WebClient ecommerceServiceWebClient;
+    private final ProductServiceClient productServiceClient;
 
     /**
-     * Get products by IDs
+     * Get products by IDs - Delegates to ProductServiceClient
      */
     public List<Product> getProducts(List<Long> productIds) {
-        CommonResponse<List<ProductDto>> response = ecommerceServiceWebClient
-            .post()
-            .uri("/internal/v1/products/bulk")
-            .bodyValue(productIds)
-            .retrieve()
-            .bodyToMono(new ParameterizedTypeReference<CommonResponse<List<ProductDto>>>() {})
-            .block();
-
-        if (response == null || response.getData() == null) {
-            return List.of();
-        }
-
-        return response.getData().stream()
-            .map(ProductDto::toDomain)
-            .toList();
+        return productServiceClient.getProducts(productIds);
     }
 
     /**
-     * Deduct stock from products
+     * Deduct stock from products - Delegates to ProductServiceClient
      */
     public void deductStocks(Map<Long, Integer> productIdToQuantity) {
-        List<ProductStockRequest> requests = productIdToQuantity.entrySet().stream()
-            .map(entry -> new ProductStockRequest(entry.getKey(), entry.getValue()))
-            .toList();
-
-        ecommerceServiceWebClient
-            .post()
-            .uri("/internal/v1/products/stocks/deduct")
-            .bodyValue(requests)
-            .retrieve()
-            .bodyToMono(Void.class)
-            .block();
-
-        log.info("Stock deducted for products: {}", productIdToQuantity);
+        productServiceClient.deductStocks(productIdToQuantity);
     }
 
     /**
-     * Restore stock to products
+     * Restore stock to products - Delegates to ProductServiceClient
      */
     public void restoreStocks(Map<Long, Integer> productIdToQuantity) {
-        List<ProductStockRequest> requests = productIdToQuantity.entrySet().stream()
-            .map(entry -> new ProductStockRequest(entry.getKey(), entry.getValue()))
-            .toList();
-
-        ecommerceServiceWebClient
-            .post()
-            .uri("/internal/v1/products/stocks/restore")
-            .bodyValue(requests)
-            .retrieve()
-            .bodyToMono(Void.class)
-            .block();
-
-        log.info("Stock restored for products: {}", productIdToQuantity);
+        productServiceClient.restoreStocks(productIdToQuantity);
     }
 
     /**
-     * Get categories by IDs
+     * Get categories by IDs - Delegates to ProductServiceClient
      */
     public List<Category> getCategories(List<Long> categoryIds) {
-        CommonResponse<List<CategoryDto>> response = ecommerceServiceWebClient
-            .post()
-            .uri("/internal/v1/categories/bulk")
-            .bodyValue(categoryIds)
-            .retrieve()
-            .bodyToMono(new ParameterizedTypeReference<CommonResponse<List<CategoryDto>>>() {})
-            .block();
-
-        if (response == null || response.getData() == null) {
-            return List.of();
-        }
-
-        return response.getData().stream()
-            .map(CategoryDto::toDomain)
-            .toList();
+        return productServiceClient.getCategories(categoryIds);
     }
 
     /**

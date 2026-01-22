@@ -1,10 +1,8 @@
 package com.spartaecommerce.pointwallet.domain.service;
 
-import com.spartaecommerce.cart.domain.entity.Cart;
-import com.spartaecommerce.cart.domain.entity.CartItem;
 import com.spartaecommerce.common.domain.category.Category;
 import com.spartaecommerce.common.auth.Passport;
-import com.spartaecommerce.order.domain.entity.OrderItem;
+import com.spartaecommerce.common.domain.Money;
 import com.spartaecommerce.common.domain.pointwallet.PointPolicy;
 import org.springframework.stereotype.Service;
 
@@ -16,62 +14,44 @@ import java.util.Map;
 @Service
 public class PointCalculator {
 
+    /**
+     * MSA: Order와 Cart 의존성 제거 - 범용 DTO 사용
+     */
     public BigDecimal calculateExpectedPoints(
-        List<OrderItem> orderItems,
+        List<ItemForPointCalculation> items,
         Passport passport,
         Map<Long, Category> categoryResolver,
         PointPolicy policy
     ) {
         BigDecimal totalPoints = BigDecimal.ZERO;
 
-        for (OrderItem item : orderItems) {
-            Category category = categoryResolver.get(item.getProductId());
+        for (ItemForPointCalculation item : items) {
+            Category category = categoryResolver.get(item.productId());
 
             if (category == null) {
-                return totalPoints;
+                continue;
             }
 
             BigDecimal effectiveRate = resolveEffectiveRate(passport, category, policy);
 
-            BigDecimal itemPoints = item.getTotalPrice()
+            BigDecimal itemPoints = item.totalPrice()
                 .amount()
                 .multiply(effectiveRate);
 
             totalPoints = totalPoints.add(itemPoints);
         }
-
-//        // 쿠폰 배수까지 적용
-//        totalPoints = totalPoints.multiply(policy.couponMultiplier());
 
         // 소수점 버림
         return totalPoints.setScale(0, RoundingMode.DOWN);
     }
 
-    public BigDecimal calculateExpectedPoints(
-        Cart cart,
-        Passport passport,
-        Map<Long, Category> categoryResolver,
-        PointPolicy policy
+    /**
+     * DTO for point calculation (replaces OrderItem and CartItem dependencies)
+     */
+    public record ItemForPointCalculation(
+        Long productId,
+        Money totalPrice
     ) {
-        BigDecimal totalPoints = BigDecimal.ZERO;
-
-        for (CartItem item : cart.getItems()) {
-            Category category = categoryResolver.get(item.getProductId());
-
-            BigDecimal effectiveRate = resolveEffectiveRate(passport, category, policy);
-
-            BigDecimal itemPoints = item.getTotalPrice()
-                .amount()
-                .multiply(effectiveRate);
-
-            totalPoints = totalPoints.add(itemPoints);
-        }
-
-//        // 쿠폰 배수까지 적용
-//        totalPoints = totalPoints.multiply(policy.couponMultiplier());
-
-        // 소수점 버림
-        return totalPoints.setScale(0, RoundingMode.DOWN);
     }
 
     private BigDecimal resolveEffectiveRate(
