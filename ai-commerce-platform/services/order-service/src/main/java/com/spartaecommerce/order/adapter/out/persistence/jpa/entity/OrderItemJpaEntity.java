@@ -1,6 +1,6 @@
 package com.spartaecommerce.order.adapter.out.persistence.jpa.entity;
 
-import com.spartaecommerce.common.domain.Money;
+import com.spartaecommerce.domain.vo.Money;
 import com.spartaecommerce.order.domain.entity.OrderItem;
 import jakarta.persistence.*;
 import lombok.*;

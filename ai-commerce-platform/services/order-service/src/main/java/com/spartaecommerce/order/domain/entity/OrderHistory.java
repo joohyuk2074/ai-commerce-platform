@@ -1,6 +1,6 @@
 package com.spartaecommerce.order.domain.entity;
 
-import com.spartaecommerce.common.util.DateTimeHolder;
+import com.spartaecommerce.util.DateTimeHolder;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

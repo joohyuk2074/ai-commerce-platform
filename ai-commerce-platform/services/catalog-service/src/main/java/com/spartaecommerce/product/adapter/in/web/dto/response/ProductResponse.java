@@ -2,7 +2,6 @@ package com.spartaecommerce.product.adapter.in.web.dto.response;
 
 import com.spartaecommerce.product.application.dto.result.ProductResult;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -23,6 +22,9 @@ public record ProductResponse(
     @Schema(description = "카테고리 ID", example = "1")
     Long categoryId,
 
+    @Schema(description = "판매자 Id", example = "1")
+    Long sellerId,
+
     @Schema(description = "주문 가능 여부", example = "true")
     boolean isOrderable,
 
@@ -33,16 +35,17 @@ public record ProductResponse(
     LocalDateTime updatedAt
 ) {
 
-    public static ProductResponse from(ProductResult productResult) {
-        return new ProductResponse(
-            productResult.productId(),
-            productResult.name(),
-            productResult.price().amount(),
-            productResult.stock(),
-            productResult.categoryId(),
-            productResult.isOrderable(),
-            productResult.createdAt(),
-            productResult.updatedAt()
-        );
-    }
+  public static ProductResponse from(ProductResult productResult) {
+    return new ProductResponse(
+        productResult.productId(),
+        productResult.name(),
+        productResult.price().amount(),
+        productResult.stock(),
+        productResult.categoryId(),
+        productResult.sellerId(),
+        productResult.isOrderable(),
+        productResult.createdAt(),
+        productResult.updatedAt()
+    );
+  }
 }

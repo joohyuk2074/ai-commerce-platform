@@ -1,9 +1,9 @@
 package com.spartaecommerce.order.application.dto.query;
 
-import com.spartaecommerce.common.domain.DateRange;
-import com.spartaecommerce.common.domain.CustomPageable;
-import com.spartaecommerce.common.exception.BusinessException;
-import com.spartaecommerce.common.exception.ErrorCode;
+import com.spartaecommerce.api.pagination.CustomPageable;
+import com.spartaecommerce.domain.vo.DateRange;
+import com.spartaecommerce.exception.BusinessException;
+import com.spartaecommerce.exception.ErrorCode;
 import com.spartaecommerce.order.domain.entity.OrderStatus;
 
 public record OrderSearchQuery(

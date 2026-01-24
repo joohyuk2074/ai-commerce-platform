@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,14 @@ public class ProductQueryService implements ProductQueryUseCase {
     public ProductResult getProduct(Long productId) {
         Product product = loadProductPort.getById(productId);
         return ProductResult.from(product);
+    }
+
+    @Override
+    public List<ProductResult> getProducts(List<Long> productIds) {
+        List<Product> products = loadProductPort.findAllByProductIdIn(productIds);
+        return products.stream()
+            .map(ProductResult::from)
+            .toList();
     }
 
     @Override

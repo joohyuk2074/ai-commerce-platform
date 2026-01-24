@@ -1,8 +1,8 @@
 package com.spartaecommerce.order.adapter.in.web.dto.request;
 
-import com.spartaecommerce.common.domain.DateRange;
-import com.spartaecommerce.order.domain.entity.OrderStatus;
+import com.spartaecommerce.domain.vo.DateRange;
 import com.spartaecommerce.order.application.dto.query.OrderSearchQuery;
+import com.spartaecommerce.order.domain.entity.OrderStatus;
 import jakarta.validation.constraints.NotNull;
 
 public record OrderSearchRequest(
@@ -15,15 +15,16 @@ public record OrderSearchRequest(
     String sortBy,
     String direction
 ) {
-    public OrderSearchQuery toQuery() {
-        return OrderSearchQuery.of(
-            userId,
-            orderStatus,
-            dateRange,
-            page,
-            size,
-            sortBy,
-            direction
-        );
-    }
+
+  public OrderSearchQuery toQuery() {
+    return OrderSearchQuery.of(
+        userId,
+        orderStatus,
+        dateRange,
+        page,
+        size,
+        sortBy,
+        direction
+    );
+  }
 }

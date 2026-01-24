@@ -8,9 +8,6 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 상품 조회 포트 (Outbound Port)
- */
 public interface LoadProductPort {
 
     Optional<Product> findById(Long productId);

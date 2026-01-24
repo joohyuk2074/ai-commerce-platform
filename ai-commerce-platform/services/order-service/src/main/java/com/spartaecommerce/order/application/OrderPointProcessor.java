@@ -1,9 +1,8 @@
 package com.spartaecommerce.order.application;
 
 import com.spartaecommerce.adapter.out.external.EcommerceServiceClient;
-import com.spartaecommerce.common.auth.Passport;
-import com.spartaecommerce.common.domain.Money;
-import com.spartaecommerce.common.domain.category.Category;
+import com.spartaecommerce.domain.Passport;
+import com.spartaecommerce.domain.vo.Money;
 import com.spartaecommerce.order.domain.entity.OrderItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

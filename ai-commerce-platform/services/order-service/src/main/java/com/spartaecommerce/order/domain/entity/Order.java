@@ -1,8 +1,8 @@
 package com.spartaecommerce.order.domain.entity;
 
-import com.spartaecommerce.common.domain.Money;
-import com.spartaecommerce.common.exception.BusinessException;
-import com.spartaecommerce.common.exception.ErrorCode;
+import com.spartaecommerce.domain.vo.Money;
+import com.spartaecommerce.exception.BusinessException;
+import com.spartaecommerce.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

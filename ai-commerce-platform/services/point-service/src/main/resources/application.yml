@@ -1,0 +1,74 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: point-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/sparta_point_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 10
+          min-idle: 2
+
+  kafka:
+    bootstrap-servers: localhost:9094
+    consumer:
+      group-id: point-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: 1
+      retries: 3
+      properties:
+        max.in.flight.requests.per.connection: 5
+        enable.idempotence: true
+    properties:
+      spring.json.add.type.headers: false
+
+# External service endpoints
+external:
+  auth-service:
+    url: http://localhost:8083
+    timeout: 3000  # 3초
+  order-service:
+    url: http://localhost:8084
+    timeout: 5000  # 5초
+
+logging:
+  level:
+    com.spartaecommerce: DEBUG
+    org.springframework.kafka: DEBUG
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method

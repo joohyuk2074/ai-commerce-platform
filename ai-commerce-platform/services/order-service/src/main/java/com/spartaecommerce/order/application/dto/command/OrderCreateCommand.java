@@ -1,7 +1,7 @@
 package com.spartaecommerce.order.application.dto.command;
 
-import com.spartaecommerce.common.auth.Passport;
 
+import com.spartaecommerce.domain.Passport;
 import java.math.BigDecimal;
 import java.util.List;
 

@@ -8,14 +8,12 @@ include("libs:common-kafka")
 include("libs:common-observability")
 include("libs:common-test")
 
-// Legacy common module (to be migrated to libs)
-include("common")
-
 // Services
 include("services:gateway-service")
 include("services:auth-service")
 include("services:user-service")
 include("services:catalog-service")
 include("services:order-service")
+include("services:point-service")
+include("services:payment-service")
 include("services:chat-service")
-include("services:ecommerce-service")

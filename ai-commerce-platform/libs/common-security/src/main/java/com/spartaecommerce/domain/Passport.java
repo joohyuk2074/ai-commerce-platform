@@ -71,25 +71,16 @@ public record Passport(
         this.passportId = passportId;
     }
 
-    /**
-     * Passport 만료 여부 확인
-     */
     @JsonIgnore
     public boolean isExpired() {
         return Instant.now().isAfter(expiresAt);
     }
 
-    /**
-     * 특정 권한 보유 여부 확인
-     */
     @JsonIgnore
     public boolean hasRole(String role) {
         return roles.contains(role);
     }
 
-    /**
-     * 관리자 권한 확인
-     */
     @JsonIgnore
     public boolean isAdmin() {
         return roles.stream().anyMatch(role ->

@@ -1,6 +1,6 @@
 package com.spartaecommerce.order.domain.entity;
 
-import com.spartaecommerce.common.domain.Money;
+import com.spartaecommerce.domain.vo.Money;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

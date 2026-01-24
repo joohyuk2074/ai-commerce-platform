@@ -1,6 +1,6 @@
 package com.spartaecommerce.util;
 
-import com.spartaecommerce.common.domain.PageResponse;
+import com.spartaecommerce.api.response.PageResponse;
 import org.springframework.data.domain.Page;
 
 public class PageResponseMapper {
